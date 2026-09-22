@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PrintNexus · Hakkında</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<link rel="stylesheet" href="./style.css">
+<style>
+/* ═══════════ HAKKINDA SAYFASI ═══════════ */
+body{ background:var(--bg); color:var(--ink); font-family:'Plus Jakarta Sans',-apple-system,sans-serif; -webkit-font-smoothing:antialiased; }
+.mono{ font-family:'JetBrains Mono',ui-monospace,monospace; font-variant-numeric:tabular-nums; }
+
+/* Üst bar */
+.ab-top{
+  position:sticky; top:0; z-index:60;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 24px; background:color-mix(in srgb, var(--surface) 85%, transparent);
+  backdrop-filter:blur(12px); border-bottom:1px solid var(--line);
+}
+.ab-back{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:9px 15px; border-radius:10px; border:1px solid var(--line);
+  background:var(--surface); color:var(--ink-2); font:inherit; font-size:.86rem; font-weight:700;
+  cursor:pointer; transition:.15s;
+}
+.ab-back:hover{ color:var(--brand); border-color:var(--brand); background:var(--brand-tint); }
+.ab-back svg{ width:16px; height:16px; }
+.ab-tools{ display:flex; gap:8px; }
+.ico-btn{
+  width:38px; height:38px; border-radius:10px; border:1px solid var(--line);
+  background:var(--surface); color:var(--ink-2); display:grid; place-items:center; cursor:pointer; transition:.15s;
+}
+.ico-btn:hover{ color:var(--brand); border-color:var(--brand); }
+.ico-btn svg{ width:17px; height:17px; }
+
+.wrap{ max-width:1120px; margin:0 auto; padding:0 24px 80px; }
+
+/* ═══════════ HERO ═══════════ */
+.hero{
+  position:relative; overflow:hidden; border-radius:24px; margin:28px 0 0;
+  background:radial-gradient(130% 130% at 12% 10%, #1e3a8a 0%, #122c6d 42%, #0a1c4d 100%);
+  color:#eaf1ff; padding:56px 48px 48px; box-shadow:var(--shadow-lg);
+}
+.hero::before{
+  content:''; position:absolute; inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.055) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.055) 1px,transparent 1px);
+  background-size:46px 46px;
+  mask-image:radial-gradient(120% 100% at 15% 0%, #000 38%, transparent 82%);
+}
+.hero::after{
+  content:''; position:absolute; width:520px; height:520px; right:-160px; top:-200px;
+  background:radial-gradient(circle, rgba(96,165,250,.32), transparent 62%); filter:blur(10px);
+}
+.hero-in{ position:relative; z-index:2; }
+.hero-badge{
+  display:inline-flex; align-items:center; gap:8px; padding:7px 14px; border-radius:999px;
+  background:rgba(255,255,255,.11); border:1px solid rgba(255,255,255,.22);
+  font-size:.72rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase; margin-bottom:22px;
+}
+.hero-badge .live{ width:7px; height:7px; border-radius:50%; background:#34d399; box-shadow:0 0 10px #34d399; animation:pulse 2s infinite; }
+@keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:.35} }
+.hero h1{ font-size:3rem; font-weight:800; letter-spacing:-.035em; line-height:1.06; max-width:15ch; margin-bottom:18px; }
+.hero h1 em{ font-style:normal; background:linear-gradient(100deg,#60a5fa,#a78bfa 55%,#f0abfc); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.hero p{ font-size:1.03rem; opacity:.8; max-width:52ch; line-height:1.68; }
+
+/* mini filo ızgarası */
+.fleet-dots{ display:grid; grid-template-columns:repeat(10,1fr); gap:8px; max-width:340px; margin-top:34px; }
+.fleet-dots i{ aspect-ratio:1; border-radius:5px; background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.14); }
+.fleet-dots i.on{ background:#34d399; box-shadow:0 0 12px rgba(52,211,153,.65); animation:pulse 3s infinite; }
+.fleet-dots i.busy{ background:#60a5fa; box-shadow:0 0 12px rgba(96,165,250,.6); }
+.fleet-dots i.warn{ background:#fbbf24; box-shadow:0 0 12px rgba(251,191,36,.5); }
+
+/* ═══════════ SAYAÇLAR ═══════════ */
+.counters{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:16px;
+  margin:-40px 0 0; position:relative; z-index:5; padding:0 12px;
+}
+.ct{
+  background:var(--surface); border:1px solid var(--line); border-radius:16px;
+  padding:22px 20px; box-shadow:var(--shadow-md); transition:.25s;
+}
+.ct:hover{ transform:translateY(-4px); border-color:var(--brand); box-shadow:var(--shadow-lg); }
+.ct-ico{ width:36px; height:36px; border-radius:10px; display:grid; place-items:center; margin-bottom:14px; }
+.ct-ico svg{ width:19px; height:19px; }
+.ct b{ display:block; font-size:2rem; font-weight:800; letter-spacing:-.03em; line-height:1; }
+.ct span{ display:block; font-size:.71rem; color:var(--ink-muted); font-weight:700; text-transform:uppercase; letter-spacing:.07em; margin-top:8px; }
+
+/* ═══════════ BÖLÜM BAŞLIĞI ═══════════ */
+.sec{ margin-top:72px; }
+.sec-head{ margin-bottom:28px; }
+.sec-kicker{ font-size:.71rem; font-weight:800; color:var(--brand); text-transform:uppercase; letter-spacing:.11em; margin-bottom:9px; display:flex; align-items:center; gap:8px; }
+.sec-kicker svg{ width:15px; height:15px; }
+.sec-head h2{ font-size:1.85rem; font-weight:800; letter-spacing:-.03em; }
+.sec-head p{ color:var(--ink-muted); margin-top:9px; font-size:.95rem; max-width:62ch; line-height:1.65; }
+
+/* ═══════════ SORUN / ÇÖZÜM ═══════════ */
+.vs{ display:grid; grid-template-columns:1fr auto 1fr; gap:20px; align-items:stretch; }
+.vs-card{ border-radius:18px; padding:28px; border:1px solid var(--line); background:var(--surface); }
+.vs-card.bad{ border-color:color-mix(in srgb,var(--err) 32%,transparent); background:var(--err-tint); }
+.vs-card.good{ border-color:color-mix(in srgb,var(--ok) 36%,transparent); background:var(--ok-tint); }
+.vs-tag{ display:inline-flex; align-items:center; gap:7px; font-size:.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; padding:5px 11px; border-radius:999px; margin-bottom:16px; }
+.vs-card.bad .vs-tag{ background:color-mix(in srgb,var(--err) 15%,transparent); color:var(--err); }
+.vs-card.good .vs-tag{ background:color-mix(in srgb,var(--ok) 15%,transparent); color:var(--ok); }
+.vs-tag svg{ width:13px; height:13px; }
+.vs-card h3{ font-size:1.1rem; font-weight:800; margin-bottom:12px; }
+.vs-card ul{ list-style:none; display:flex; flex-direction:column; gap:10px; }
+.vs-card li{ display:flex; gap:10px; font-size:.9rem; color:var(--ink-2); line-height:1.5; }
+.vs-card li svg{ width:16px; height:16px; flex-shrink:0; margin-top:2px; }
+.vs-card.bad li svg{ color:var(--err); }
+.vs-card.good li svg{ color:var(--ok); }
+.vs-arrow{ display:grid; place-items:center; color:var(--brand); }
+.vs-arrow svg{ width:30px; height:30px; }
+
+/* ═══════════ YOL HARİTASI ═══════════ */
+.road-box{ position:relative; background:var(--surface); border:1px solid var(--line); border-radius:22px; padding:34px 28px 26px; box-shadow:var(--shadow-sm); overflow:hidden; }
+.road-svg{ width:100%; height:auto; display:block; overflow:visible; }
+.road-base{ fill:none; stroke:var(--line); stroke-width:26; stroke-linecap:round; stroke-linejoin:round; }
+.road-fill{ fill:none; stroke:url(#roadGrad); stroke-width:26; stroke-linecap:round; stroke-linejoin:round; }
+.road-dash{ fill:none; stroke:rgba(255,255,255,.85); stroke-width:2.5; stroke-dasharray:10 14; stroke-linecap:round; }
+:root[data-theme="dark"] .road-dash{ stroke:rgba(255,255,255,.55); }
+
+.pin{ cursor:pointer; transition:.2s; opacity:0; }
+.pin .pin-body{ transition:.25s; }
+.pin:hover .pin-body{ transform:translateY(-4px); }
+.pin.on .pin-body{ transform:translateY(-4px); }
+.pin .pin-halo{ opacity:0; transition:.3s; }
+.pin.on .pin-halo{ opacity:1; animation:halo 2s infinite; }
+@keyframes halo{ 0%,100%{ r:26; opacity:.35 } 50%{ r:34; opacity:.08 } }
+.pin-num{ font:800 15px 'JetBrains Mono',monospace; fill:#fff; text-anchor:middle; pointer-events:none; }
+.pin-date{ font:700 11.5px 'Plus Jakarta Sans',sans-serif; fill:var(--ink-muted); text-anchor:middle; pointer-events:none; }
+
+/* aşama detay kartı */
+.phase{ margin-top:24px; border:1px solid var(--line); border-radius:18px; padding:26px 28px; background:var(--surface-2); display:grid; grid-template-columns:auto 1fr; gap:22px; align-items:start; }
+.phase-badge{ width:56px; height:56px; border-radius:15px; display:grid; place-items:center; color:#fff; font:800 1.15rem 'JetBrains Mono',monospace; flex-shrink:0; box-shadow:var(--shadow-md); }
+.phase-body h3{ font-size:1.18rem; font-weight:800; margin-bottom:4px; }
+.phase-when{ font-size:.78rem; font-weight:700; color:var(--brand); text-transform:uppercase; letter-spacing:.06em; margin-bottom:12px; display:block; }
+.phase-body p{ color:var(--ink-muted); font-size:.94rem; line-height:1.68; margin-bottom:14px; }
+.chips{ display:flex; flex-wrap:wrap; gap:7px; }
+.chip{ font-size:.74rem; font-weight:700; padding:5px 11px; border-radius:999px; background:var(--brand-tint); color:var(--brand); border:1px solid var(--brand-ring); }
+.phase-nav{ display:flex; gap:6px; justify-content:center; margin-top:20px; }
+.phase-nav button{ width:9px; height:9px; border-radius:999px; border:none; background:var(--line-strong); cursor:pointer; padding:0; transition:.2s; }
+.phase-nav button.on{ width:26px; background:var(--brand); }
+
+/* ═══════════ YAZICI ODASI ═══════════ */
+.room{ position:relative; border-radius:22px; overflow:hidden; box-shadow:var(--shadow-lg); }
+.room img{ width:100%; display:block; aspect-ratio:16/9; object-fit:cover; }
+.room-veil{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(6,18,48,.15) 0%, rgba(6,18,48,.55) 48%, rgba(6,18,48,.92) 100%); }
+.room-txt{ position:absolute; left:0; right:0; bottom:0; padding:36px 34px; color:#eaf1ff; }
+.room-txt h3{ font-size:1.55rem; font-weight:800; letter-spacing:-.025em; margin-bottom:8px; }
+.room-txt p{ font-size:.93rem; opacity:.82; max-width:60ch; line-height:1.6; }
+.room-pills{ display:flex; flex-wrap:wrap; gap:9px; margin-top:18px; }
+.room-pill{ display:inline-flex; align-items:center; gap:7px; padding:7px 13px; border-radius:999px; background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.24); font-size:.78rem; font-weight:700; backdrop-filter:blur(6px); }
+.room-pill svg{ width:14px; height:14px; }
+
+/* ═══════════ FİLO / MARKALAR ═══════════ */
+.brands{ display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:16px; }
+.brand-c{ background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:22px; transition:.25s; }
+.brand-c:hover{ transform:translateY(-4px); box-shadow:var(--shadow-md); }
+.brand-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.brand-c h4{ font-size:1rem; font-weight:800; }
+.brand-c small{ display:block; font-size:.73rem; color:var(--ink-muted); font-weight:600; margin-top:2px; }
+.brand-state{ font-size:.68rem; font-weight:800; padding:4px 9px; border-radius:999px; text-transform:uppercase; letter-spacing:.05em; }
+.brand-state.ok{ background:var(--ok-tint); color:var(--ok); }
+.brand-state.pending{ background:var(--warn-tint); color:var(--warn); }
+.brand-bar{ height:7px; border-radius:999px; background:var(--line); overflow:hidden; }
+.brand-bar i{ display:block; height:100%; border-radius:999px; width:0; transition:width 1.1s cubic-bezier(.2,.8,.2,1); }
+.brand-meta{ display:flex; justify-content:space-between; margin-top:9px; font-size:.76rem; color:var(--ink-muted); font-weight:600; }
+.brand-meta b{ color:var(--ink); font-family:'JetBrains Mono',monospace; }
+
+/* ═══════════ EKİP ═══════════ */
+.team{ display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr)); gap:16px; }
+.mem{
+  background:var(--surface); border:1px solid var(--line); border-radius:18px;
+  padding:28px 22px 30px; text-align:center; transition:.25s;
+  position:relative; overflow:hidden; display:flex; flex-direction:column;
+  min-height:252px; isolation:isolate;
+}
+.mem::before{ content:''; position:absolute; inset:0 0 auto; height:3px; background:var(--c); opacity:0; transition:.25s; }
+.mem:hover{ transform:translateY(-5px); box-shadow:var(--shadow-md); border-color:transparent; }
+.mem:hover::before{ opacity:1; }
+
+/* avatar + altındaki renkli parıltı */
+.mem-av{
+  position:relative; z-index:2; width:64px; height:64px; border-radius:19px;
+  display:grid; place-items:center; margin:0 auto 15px; color:#fff;
+  font-weight:800; font-size:1.35rem; letter-spacing:-.02em;
+  box-shadow:0 8px 22px -6px var(--c);
+}
+.mem-av::after{
+  content:''; position:absolute; left:50%; bottom:-13px; transform:translateX(-50%);
+  width:46px; height:12px; border-radius:50%;
+  background:var(--c); filter:blur(9px); opacity:.55;
+  animation:glowPulse 2.6s ease-in-out infinite;
+}
+@keyframes glowPulse{ 0%,100%{ opacity:.4; width:42px } 50%{ opacity:.75; width:56px } }
+
+.mem b{ position:relative; z-index:2; display:block; font-size:1.02rem; font-weight:800; margin-bottom:9px; }
+.mem p{ position:relative; z-index:2; font-size:.83rem; color:var(--ink-muted); line-height:1.55; }
+
+/* ── kod yağmuru: kartın tamamını kaplar ── */
+.mem-rain{
+  position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+  /* zemin kartla aynı, sadece alta doğru kişinin renginde hafif tonlama */
+  background:linear-gradient(180deg,
+              transparent 0%,
+              color-mix(in srgb, var(--c) 4%, transparent) 55%,
+              color-mix(in srgb, var(--c) 15%, transparent) 100%);
+}
+/* üstte metnin arkasında soluk, aşağı indikçe güçlenen kademeli geçiş */
+.mem-rain canvas{
+  display:block; width:100%; height:100%;
+  -webkit-mask-image:linear-gradient(180deg,
+     rgba(0,0,0,.26) 0%, rgba(0,0,0,.15) 34%, rgba(0,0,0,.30) 52%, rgba(0,0,0,.62) 72%, #000 92%);
+          mask-image:linear-gradient(180deg,
+     rgba(0,0,0,.26) 0%, rgba(0,0,0,.15) 34%, rgba(0,0,0,.30) 52%, rgba(0,0,0,.62) 72%, #000 92%);
+  transition:opacity .3s;
+}
+.mem:hover .mem-rain canvas{ opacity:1; }
+/* alt kenarda kişinin renginde ışıma */
+.mem-rain::after{
+  content:''; position:absolute; inset:auto 0 0; height:52px; z-index:1; pointer-events:none;
+  background:radial-gradient(130% 100% at 50% 150%, var(--c) 0%, transparent 68%);
+  opacity:.20; transition:.3s;
+}
+.mem:hover .mem-rain::after{ opacity:.40; }
+.thanks{ margin-top:20px; padding:20px 24px; border-radius:16px; background:var(--brand-tint); border:1px solid var(--brand-ring); display:flex; align-items:center; gap:14px; }
+.thanks svg{ width:22px; height:22px; color:var(--brand); flex-shrink:0; }
+.thanks p{ font-size:.9rem; color:var(--ink-2); line-height:1.6; }
+.thanks b{ color:var(--ink); }
+
+/* ═══════════ TEKNOLOJİ ═══════════ */
+.stack{ display:grid; grid-template-columns:repeat(auto-fit,minmax(255px,1fr)); gap:16px; }
+.layer{ background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:24px; }
+.layer-head{ display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+.layer-ico{ width:40px; height:40px; border-radius:11px; display:grid; place-items:center; color:#fff; flex-shrink:0; }
+.layer-ico svg{ width:20px; height:20px; }
+.layer-head b{ font-size:.98rem; font-weight:800; }
+.layer-head small{ display:block; font-size:.72rem; color:var(--ink-muted); font-weight:600; }
+.tags{ display:flex; flex-wrap:wrap; gap:7px; }
+.tag{ font-size:.76rem; font-weight:700; padding:6px 11px; border-radius:9px; background:var(--surface-2); border:1px solid var(--line); color:var(--ink-2); transition:.15s; }
+.tag:hover{ border-color:var(--brand); color:var(--brand); }
+
+/* ═══════════ ÖZELLİKLER ═══════════ */
+.feats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; }
+.feat{ background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:24px; display:flex; gap:16px; transition:.25s; }
+.feat:hover{ transform:translateY(-4px); box-shadow:var(--shadow-md); border-color:var(--brand-ring); }
+.feat-ico{ width:44px; height:44px; border-radius:12px; display:grid; place-items:center; background:var(--brand-tint); color:var(--brand); flex-shrink:0; }
+.feat-ico svg{ width:21px; height:21px; }
+.feat b{ display:block; font-size:.98rem; font-weight:800; margin-bottom:5px; }
+.feat p{ font-size:.86rem; color:var(--ink-muted); line-height:1.55; }
+
+/* ═══════════ LİMİTASYONLAR ═══════════ */
+.notes{ display:grid; grid-template-columns:repeat(auto-fit,minmax(255px,1fr)); gap:16px; }
+.note{ background:var(--warn-tint); border:1px solid color-mix(in srgb,var(--warn) 30%,transparent); border-radius:18px; padding:22px; }
+.note-h{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.note-h svg{ width:18px; height:18px; color:var(--warn); }
+.note-h b{ font-size:.92rem; font-weight:800; }
+.note p{ font-size:.85rem; color:var(--ink-2); line-height:1.6; }
+
+/* ═══════════ FOOTER ═══════════ */
+.ab-foot{ margin-top:72px; padding-top:34px; border-top:1px solid var(--line); display:flex; flex-wrap:wrap; gap:20px; align-items:center; justify-content:space-between; }
+.ab-foot-l{ display:flex; align-items:center; gap:14px; }
+.ab-foot-l img{ width:46px; height:auto; }
+.ab-foot-l b{ display:block; font-size:1rem; font-weight:800; }
+.ab-foot-l span{ display:block; font-size:.75rem; color:var(--ink-muted); font-weight:600; }
+.ver{ display:flex; gap:8px; flex-wrap:wrap; }
+.ver span{ font-size:.74rem; font-weight:700; padding:6px 12px; border-radius:999px; background:var(--surface-2); border:1px solid var(--line); color:var(--ink-muted); }
+
+/* ═══════════ SCROLL REVEAL ═══════════ */
+.rv{ opacity:0; transform:translateY(26px); transition:opacity .65s cubic-bezier(.2,.8,.2,1), transform .65s cubic-bezier(.2,.8,.2,1); }
+.rv.in{ opacity:1; transform:none; }
+
+/* ═══════════ RESPONSIVE ═══════════ */
+@media (max-width:900px){
+  .hero{ padding:40px 26px 36px; border-radius:20px; }
+  .hero h1{ font-size:2.1rem; }
+  .vs{ grid-template-columns:1fr; }
+  .vs-arrow{ transform:rotate(90deg); padding:4px 0; }
+  .phase{ grid-template-columns:1fr; }
+  .room-txt{ padding:24px 20px; }
+  .room-txt h3{ font-size:1.2rem; }
+  .sec{ margin-top:56px; }
+  .sec-head h2{ font-size:1.45rem; }
+  .wrap{ padding:0 16px 60px; }
+  .counters{ padding:0; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ ÜST BAR ═══ -->
+<div class="ab-top">
+  <button class="ab-back" onclick="window.location.href='/index.html'">
+    <i data-lucide="arrow-left"></i> Panele Dön
+  </button>
+  <div class="ab-tools">
+    <button class="ico-btn" onclick="toggleTheme()" title="Tema"><i data-lucide="moon" id="thIcon"></i></button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ═══ HERO ═══ -->
+  <section class="hero">
+    <div class="hero-in">
+      <div class="hero-badge"><span class="live"></span> SASA Endüstri 4.0 · 3D Baskı Otomasyonu</div>
+      <h1>One Dashboard,<br><em>All Printers.</em></h1>
+      <p>Beş farklı marka, yirmi cihaz, tek ekran. PrintNexus, SASA Endüstri 4.0 yazıcı filosunu merkezî olarak izleyen ve yöneten kontrol panelidir.</p>
+      <div class="fleet-dots" id="fleetDots"></div>
+    </div>
+  </section>
+
+  <!-- ═══ SAYAÇLAR ═══ -->
+  <div class="counters">
+    <div class="ct rv">
+      <div class="ct-ico" style="background:var(--brand-tint);color:var(--brand)"><i data-lucide="boxes"></i></div>
+      <b class="mono" data-count="5">0</b><span>Yazıcı Markası</span>
+    </div>
+    <div class="ct rv">
+      <div class="ct-ico" style="background:var(--ok-tint);color:var(--ok)"><i data-lucide="plug-zap"></i></div>
+      <b class="mono"><span data-count="16">0</span>/20</b><span>Bağlı Cihaz</span>
+    </div>
+    <div class="ct rv">
+      <div class="ct-ico" style="background:var(--warn-tint);color:var(--warn)"><i data-lucide="calendar-days"></i></div>
+      <b class="mono" data-count="27">0</b><span>Günlük Geliştirme</span>
+    </div>
+    <div class="ct rv">
+      <div class="ct-ico" style="background:var(--brand-tint);color:var(--brand)"><i data-lucide="code"></i></div>
+      <b class="mono"><span data-count="12">0</span>K+</b><span>Satır Kod</span>
+    </div>
+    <div class="ct rv">
+      <div class="ct-ico" style="background:var(--ok-tint);color:var(--ok)"><i data-lucide="radio"></i></div>
+      <b class="mono" data-count="4">0</b><span>İletişim Protokolü</span>
+    </div>
+  </div>
+
+  <!-- ═══ NEDEN VAR ═══ -->
+  <section class="sec">
+    <div class="sec-head rv">
+      <div class="sec-kicker"><i data-lucide="target"></i> Çıkış Noktası</div>
+      <h2>Neden geliştirildi?</h2>
+      <p>SASA Endüstri 4.0 departmanı; robotik otomasyon, veri analizi, 3D baskı ve kestirimci bakım üzerine çalışıyor. Yazıcı filosu büyüdükçe takip etmek başlı başına bir işe dönüştü.</p>
+    </div>
+
+    <div class="vs rv">
+      <div class="vs-card bad">
+        <span class="vs-tag"><i data-lucide="triangle-alert"></i> Önce</span>
+        <h3>Dağınık, yorucu, görünmez</h3>
+        <ul>
+          <li><i data-lucide="x"></i> Her marka kendi arayüzü, kendi şifresi, kendi sekmesi</li>
+          <li><i data-lucide="x"></i> Bir baskının durumunu görmek için odaya kadar gitmek</li>
+          <li><i data-lucide="x"></i> Hata fark edilene kadar saatlerce boşa dönen cihazlar</li>
+          <li><i data-lucide="x"></i> Geçmiş veri yok — sadece "sanırım geçen hafta da olmuştu"</li>
+        </ul>
+      </div>
+      <div class="vs-arrow"><i data-lucide="arrow-right"></i></div>
+      <div class="vs-card good">
+        <span class="vs-tag"><i data-lucide="check-check"></i> Sonra</span>
+        <h3>Tek ekran, canlı veri</h3>
+        <ul>
+          <li><i data-lucide="check"></i> Beş markanın tamamı aynı panelde, aynı dilde</li>
+          <li><i data-lucide="check"></i> Sıcaklık, ilerleme, katman ve kamera canlı akışta</li>
+          <li><i data-lucide="check"></i> Duraklat / durdur komutları uzaktan, saniyeler içinde</li>
+          <li><i data-lucide="check"></i> Analitik ekranıyla geçmişe dayalı karar</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ YOL HARİTASI ═══ -->
+  <section class="sec">
+    <div class="sec-head rv">
+      <div class="sec-kicker"><i data-lucide="route"></i> Yol Haritası</div>
+      <h2>Geliştirme süreci</h2>
+      <p>Proje daha önce başlamış, ekip yetersizliğinden bir süre beklemeye alınmıştı. 2026 yaz stajında devralındı; mevcut yapı korunarak üzerine inşa edildi. Pazartesi–Cuma, 08:00–18:00, 27 gün.</p>
+    </div>
+
+    <div class="road-box rv">
+      <svg class="road-svg" id="roadSvg" viewBox="0 0 1000 360" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="roadGrad" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0%"   stop-color="#3b82f6"/>
+            <stop offset="35%"  stop-color="#8b5cf6"/>
+            <stop offset="68%"  stop-color="#ec4899"/>
+            <stop offset="100%" stop-color="#10b981"/>
+          </linearGradient>
+        </defs>
+        <path id="roadPath" class="road-base"
+          d="M 40 318 C 130 318, 142 246, 232 240 C 322 234, 340 300, 428 288 C 516 276, 512 154, 604 150 C 696 146, 700 208, 788 190 C 876 172, 886 66, 958 60"/>
+        <path id="roadPathFill" class="road-fill"
+          d="M 40 318 C 130 318, 142 246, 232 240 C 322 234, 340 300, 428 288 C 516 276, 512 154, 604 150 C 696 146, 700 208, 788 190 C 876 172, 886 66, 958 60"/>
+        <path id="roadPathDash" class="road-dash"
+          d="M 40 318 C 130 318, 142 246, 232 240 C 322 234, 340 300, 428 288 C 516 276, 512 154, 604 150 C 696 146, 700 208, 788 190 C 876 172, 886 66, 958 60"/>
+        <g id="pinLayer"></g>
+      </svg>
+
+      <div class="phase" id="phaseCard">
+        <div class="phase-badge" id="phBadge">01</div>
+        <div class="phase-body">
+          <span class="phase-when" id="phWhen"></span>
+          <h3 id="phTitle"></h3>
+          <p id="phText"></p>
+          <div class="chips" id="phChips"></div>
+        </div>
+      </div>
+      <div class="phase-nav" id="phNav"></div>
+    </div>
+  </section>
+
+  <!-- ═══ YAZICI ODASI ═══ -->
+  <section class="sec">
+    <div class="sec-head rv">
+      <div class="sec-kicker"><i data-lucide="factory"></i> Sahada</div>
+      <h2>Panelin arkasındaki oda</h2>
+      <p>Ekrandaki her kart, buradaki gerçek bir cihaza karşılık geliyor. Panelde gördüğünüz sıcaklık bu rafların üzerinde ölçülüyor.</p>
+    </div>
+
+    <div class="room rv">
+      <img src="./images/printer-room.jpg" alt="SASA Endüstri 4.0 3D yazıcı odası">
+      <div class="room-veil"></div>
+      <div class="room-txt">
+        <h3>SASA Endüstri 4.0 · 3D Baskı Laboratuvarı</h3>
+        <p>Ultimaker, Bambu Lab, ZAXE, Guider ve Raise3D cihazlarının bulunduğu üretim odası. PrintNexus'un izlediği filo, tam olarak burası.</p>
+        <div class="room-pills">
+          <span class="room-pill"><i data-lucide="printer"></i> 20 Cihaz</span>
+          <span class="room-pill"><i data-lucide="layers"></i> 5 Marka</span>
+          <span class="room-pill"><i data-lucide="wifi"></i> MQTT · WebSocket · HTTP</span>
+          <span class="room-pill"><i data-lucide="video"></i> Canlı Kamera</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ MARKALAR ═══ -->
+  <section class="sec">
+    <div class="sec-head rv">
+      <div class="sec-kicker"><i data-lucide="boxes"></i> Filo</div>
+      <h2>Desteklenen markalar</h2>
+      <p>Her markanın protokolü farklı. Beşi de ayrı birer adaptör olarak yazıldı; hepsi aynı veri modeline çevriliyor.</p>
+    </div>
+    <div class="brands rv" id="brandGrid"></div>
+  </section>
+
+  <!-- ═══ EKİP ═══ -->
+  <section class="sec">
+    <div class="sec-head rv">
+      <div class="sec-kicker"><i data-lucide="users"></i> Ekip</div>
+      <h2>Kimler emek verdi?</h2>
+      <p>İki stajyer, bir sürü kahve ve sabırla destek olan bir ekip.</p>
+    </div>
+    <div class="team rv" id="teamGrid"></div>
+    <div class="thanks rv">
+      <i data-lucide="heart-handshake"></i>
+      <p><b>Ayrıca IT ekibine teşekkürler.</b> Ağ erişimleri, sunucu tarafı ve altyapı desteği olmadan bu panelin hiçbir yazıcıya ulaşması mümkün olmazdı.</p>
+    </div>
+  </section>
+
+  <!-- ═══ TEKNOLOJİ ═══ -->
+  <section class="sec">
+    <div class="sec-head rv">
+      <div class="sec-kicker"><i data-lucide="cpu"></i> Teknoloji</div>
+      <h2>Neyle inşa edildi?</h2>
+      <p>Bağımlılığı az, kurulumu kolay, fabrika ağında sorunsuz çalışan bir yığın tercih edildi.</p>
+    </div>
+    <div class="stack rv" id="stackGrid"></div>
+  </section>
+
+  <!-- ═══ ÖZELLİKLER ═══ -->
+  <section class="sec">
+    <div class="sec-head rv">
+      <div class="sec-kicker"><i data-lucide="sparkles"></i> Yetenekler</div>
+      <h2>Panel neler yapıyor?</h2>
+    </div>
+    <div class="feats rv" id="featGrid"></div>
+  </section>
+
+  <!-- ═══ LİMİTASYONLAR ═══ -->
+  <section class="sec">
+    <div class="sec-head rv">
+      <div class="sec-kicker"><i data-lucide="alert-circle"></i> Şeffaflık</div>
+      <h2>Bilinen sınırlar</h2>
+      <p>Her şeyin mükemmel olduğunu söylemek kolay olurdu. Bunlar üzerinde çalışmaya devam ediyoruz.</p>
+    </div>
+    <div class="notes rv">
+      <div class="note">
+        <div class="note-h"><i data-lucide="timer"></i><b>Veri gecikmesi</b></div>
+        <p>Veriler cihazlardan anlık çekildiği için ağ yoğunluğuna bağlı olarak birkaç saniyelik gecikmeler görülebiliyor.</p>
+      </div>
+      <div class="note">
+        <div class="note-h"><i data-lucide="video-off"></i><b>Kamera donmaları</b></div>
+        <p>Canlı görüntü akışında zaman zaman takılma yaşanabiliyor; sayfa yenilendiğinde akış tekrar kuruluyor.</p>
+      </div>
+      <div class="note">
+        <div class="note-h"><i data-lucide="lock"></i><b>Raise3D erişimi</b></div>
+        <p>Cihazlardaki "secure password" ayarı nedeniyle 4 Raise3D yazıcısına henüz bağlanılamadı. Çözüm üzerinde çalışılıyor.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═══ -->
+  <div class="ab-foot rv">
+    <div class="ab-foot-l">
+      <img src="./images/sasaend4.0wp.jpg" alt="SASA">
+      <div>
+        <b>PrintNexus</b>
+        <span>SASA Endüstri 4.0 · 2026</span>
+      </div>
+    </div>
+    <div class="ver">
+      <span>v1.2.0</span>
+      <span>Son güncelleme · 3 Ağustos 2026</span>
+      <span>Geliştirme · 8 Tem – 3 Ağu 2026</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ═══ TEMA ═══ */
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('theme', t);
+  const i = document.getElementById('thIcon');
+  if(i){ i.setAttribute('data-lucide', t==='dark'?'sun':'moon'); }
+  if(window.lucide) lucide.createIcons();
+}
+function toggleTheme(){
+  applyTheme(document.documentElement.getAttribute('data-theme')==='dark' ? 'light' : 'dark');
+}
+applyTheme(localStorage.getItem('theme') || 'light');
+
+/* ═══ FİLO NOKTALARI ═══ */
+(function(){
+  const s = ['on','on','busy','','on','warn','busy','on','','on','','on','on','busy','on','','on','warn','on','on'];
+  document.getElementById('fleetDots').innerHTML = s.map(x=>`<i class="${x}"></i>`).join('');
+})();
+
+/* ═══ VERİ ═══ */
+const PHASES = [
+  { n:'01', when:'8 – 12 Temmuz 2026', color:'#3b82f6',
+    title:'Devralma & Planlama',
+    text:'Proje daha önce başlamış ama ekip yetersizliğinden beklemeye alınmıştı. Mevcut kod tabanı incelendi, çalışan kısımlar korunarak yol haritası çıkarıldı. Hangi yazıcının hangi protokolle konuştuğu tek tek tespit edildi.',
+    chips:['Kod incelemesi','Gereksinim analizi','Protokol keşfi'] },
+  { n:'02', when:'12 – 18 Temmuz 2026', color:'#8b5cf6',
+    title:'Arayüz & Panel Tasarımı',
+    text:'Filo ızgarası, yazıcı kartları, detay modalı ve analitik ekranı tasarlandı. Karanlık/aydınlık tema, rol bazlı görünürlük ve mobil uyum bu aşamada oturdu.',
+    chips:['Dashboard','Filo ızgarası','Dark mode','Analitik'] },
+  { n:'03', when:'18 – 28 Temmuz 2026', color:'#ec4899',
+    title:'Yazıcı Entegrasyonları',
+    text:'İşin en çetin kısmı. Her marka ayrı bir dünya: Bambu MQTT, ZAXE WebSocket, Ultimaker ve Raise3D HTTP, Guider ham TCP. Her yazıcının bağlanması ayrı bir kilometre taşıydı. Kamera akışı da bu aşamada devreye alındı.',
+    chips:['MQTT','WebSocket','HTTP API','TCP 8899','FFmpeg kamera'] },
+  { n:'04', when:'28 Temmuz – 3 Ağustos 2026', color:'#10b981',
+    title:'Güvenlik, Test & Yayın',
+    text:'JWT tabanlı oturum ve rol yetkilendirmesi eklendi. Sunucu defalarca yeniden başlatılarak tüm akış uçtan uca denendi; 20 cihazın 16\'sı canlıya alındı. İlk sürüm yayınlandı.',
+    chips:['JWT auth','Rol yönetimi','Uçtan uca test','v1.2.0'] }
+];
+
+const BRANDS = [
+  { name:'Bambu Lab', proto:'MQTT · 8883', conn:9, total:9, color:'#10b981' },
+  { name:'ZAXE X4',   proto:'WebSocket · 9294', conn:4, total:4, color:'#3b82f6' },
+  { name:'Ultimaker', proto:'HTTP API · 80', conn:2, total:2, color:'#8b5cf6' },
+  { name:'Guider 2S', proto:'TCP Socket · 8899', conn:1, total:1, color:'#f59e0b' },
+  { name:'Raise3D Pro3', proto:'HTTP API · 10800', conn:0, total:4, color:'#94a3b8' }
+];
+
+/* c1 = ana renk (dalga + parıltı), c2 = avatar degrade tonu */
+const TEAM = [
+  { name:'Halil Tutar', init:'H', desc:'Projeyi devreye alan ve imkân sağlayan isim · Koordinasyon', c1:'#3b82f6', c2:'#2563eb' },
+  { name:'Sezgin Yiğit', init:'S', desc:'İlk sürümün sahibi · Kod desteği ve teknik rehberlik', c1:'#06b6d4', c2:'#0891b2' },
+  { name:'Mustafa Önay', init:'M', desc:'3D yazıcı odası · Teknik destek ve yazıcı bilgilendirmesi', c1:'#eab308', c2:'#f59e0b' },
+  { name:'Tolga İbiş', init:'T', desc:'3D yazıcı odası · Teknik destek ve yazıcı bilgilendirmesi', c1:'#f97316', c2:'#ea580c' },
+  { name:'Yetkin Yazıcı', init:'Y', desc:'Proje desteği ve mentorluk · Tıkanılan noktalarda çözüm', c1:'#10b981', c2:'#059669' },
+  { name:'Serra Erciyes', init:'S', desc:'Frontend & Backend · Arayüz geliştirme, API entegrasyonları', c1:'#ec4899', c2:'#db2777' },
+  { name:'Başak Karaman', init:'B', desc:'Frontend & Backend · Arayüz geliştirme, API entegrasyonları', c1:'#8b5cf6', c2:'#7c3aed' }
+];
+
+const STACK = [
+  { t:'Frontend', s:'Tarayıcı katmanı', ico:'layout-dashboard', c:'#f97316',
+    tags:['Vanilla JavaScript','HTML5','CSS3','Chart.js','Lucide Icons','hls.js'] },
+  { t:'Backend', s:'Sunucu katmanı', ico:'server', c:'#3b82f6',
+    tags:['Node.js','Express.js','ES Modules','JWT','Multer'] },
+  { t:'Veri', s:'Kalıcı depolama', ico:'database', c:'#10b981',
+    tags:['SQLite','better-sqlite3','XLSX export'] },
+  { t:'Cihaz İletişimi', s:'Yazıcı protokolleri', ico:'radio', c:'#8b5cf6',
+    tags:['MQTT','WebSocket (ws)','HTTP / REST','TCP Socket','Axios','Ping'] },
+  { t:'Medya', s:'Kamera akışı', ico:'video', c:'#ec4899',
+    tags:['FFmpeg','fluent-ffmpeg','MJPEG proxy','RTSP → HLS'] },
+  { t:'Paketleme', s:'Masaüstü dağıtım', ico:'package', c:'#06b6d4',
+    tags:['Electron','electron-builder','NSIS installer'] }
+];
+
+const FEATS = [
+  { i:'activity', t:'Canlı Filo İzleme', d:'Tüm cihazların durumu, sıcaklığı ve ilerlemesi tek ızgarada, anlık olarak.' },
+  { i:'video', t:'Kamera Entegrasyonu', d:'Bambu ve ZAXE için sürekli çalışan HLS akışı, Ultimaker ve Guider için MJPEG proxy. Baskıyı yerinden kalkmadan izle.' },
+  { i:'sliders-horizontal', t:'Uzaktan Kontrol', d:'Duraklat, devam ettir, durdur. Komutlar cihazın kendi protokolüne çevrilerek iletilir.' },
+  { i:'bar-chart-3', t:'Analitik & Raporlar', d:'Sıcaklık geçmişi, baskı sonuçları ve cihaz verimliliği grafikleri; Excel dışa aktarımı.' },
+  { i:'calculator', t:'Üretim Kayıtları & Maliyet', d:'Filament, elektrik ve işçilik maliyetinden kâr/zarar hesabı. Bambu adaptöründen otomatik veri çekme, canlı USD/TRY kuru, Excel dışa aktarım.' },
+  { i:'shield-check', t:'Rol Tabanlı Erişim', d:'Yönetici, operatör ve izleyici rolleri. JWT ile oturum, yetkiye göre görünen menüler.' },
+  { i:'moon-star', t:'Koyu & Açık Tema', d:'Vardiya saatine göre değişen arayüz. Tercih tarayıcıda hatırlanır.' }
+];
+
+/* ═══ RENDER: MARKALAR ═══ */
+document.getElementById('brandGrid').innerHTML = BRANDS.map(b=>{
+  const pct = Math.round(b.conn/b.total*100);
+  const ok = b.conn === b.total;
+  return `<div class="brand-c">
+    <div class="brand-top">
+      <div><h4>${b.name}</h4><small>${b.proto}</small></div>
+      <span class="brand-state ${ok?'ok':'pending'}">${ok?'Bağlı':'Beklemede'}</span>
+    </div>
+    <div class="brand-bar"><i data-w="${pct}" style="background:${b.color}"></i></div>
+    <div class="brand-meta"><span>Bağlanan</span><b>${b.conn}/${b.total}</b></div>
+  </div>`;
+}).join('');
+
+/* ═══ RENDER: EKİP ═══ */
+document.getElementById('teamGrid').innerHTML = TEAM.map(m=>`
+  <div class="mem" style="--c:${m.c1}">
+    <div class="mem-rain"><canvas data-color="${m.c1}"></canvas></div>
+    <div class="mem-av" style="background:linear-gradient(135deg,${m.c1},${m.c2})">${m.init}</div>
+    <b>${m.name}</b>
+    <p>${m.desc}</p>
+  </div>`).join('');
+
+/* ═══ KOD YAĞMURU ═══ */
+(function(){
+  const GLYPHS = '01234567890123456789ABCDEFGHJKLMNPQRSTUVWXYZ<>{}[]/\\|=+*#$%&@?;:~^'.split('');
+  const rnd    = () => GLYPHS[(Math.random() * GLYPHS.length) | 0];
+  const FONT   = 13;   // karakter boyu (px)
+  const TAIL   = 18;   // kuyruk uzunluğu (karakter) — kart yüksekliğine göre
+  // OS "hareketi azalt" açıksa animasyon durdurulmaz, sadece yavaşlatılır
+  const calm   = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const STEP   = calm ? 55 : 32;     // kareler arası ms  (~18 / ~30 fps)
+  const SPEED  = calm ? 0.55 : 1;    // düşüş hızı çarpanı
+
+  /* renk yardımcıları -------------------------------------------------- */
+  function rgba(hex, a){
+    const n = parseInt(hex.slice(1), 16);
+    return 'rgba(' + ((n>>16)&255) + ',' + ((n>>8)&255) + ',' + (n&255) + ',' + a + ')';
+  }
+  // amt > 0 → beyaza yaklaştırır, amt < 0 → koyultur
+  function shade(hex, amt){
+    const n = parseInt(hex.slice(1), 16);
+    const f = v => amt >= 0 ? Math.round(v + (255 - v) * amt) : Math.round(v * (1 + amt));
+    return 'rgb(' + f((n>>16)&255) + ',' + f((n>>8)&255) + ',' + f(n&255) + ')';
+  }
+
+  /* tema takibi: açık zeminde koyu karakter, koyu zeminde parlak -------- */
+  const isDark = () => document.documentElement.getAttribute('data-theme') === 'dark';
+  let dark = isDark();
+  new MutationObserver(() => { dark = isDark(); })
+    .observe(document.documentElement, { attributes:true, attributeFilter:['data-theme'] });
+
+  /* tek bir yağmur örneği ---------------------------------------------- */
+  function build(canvas){
+    const color = canvas.dataset.color || '#3b82f6';
+    const ctx   = canvas.getContext('2d');
+    const dpr   = Math.min(window.devicePixelRatio || 1, 2);
+
+    const headOnLight = shade(color, -0.45);  // beyaz kartta okunur koyu ton
+    const headOnDark  = shade(color,  0.55);  // koyu kartta parlak ton
+
+    // kuyruk renkleri önceden hesaplanır (her karede string üretmemek için)
+    const rgbOf   = h => { const n = parseInt(h.slice(1),16); return [(n>>16)&255,(n>>8)&255,n&255]; };
+    const mulRGB  = (a,k) => a.map(v => Math.round(v*k));
+    const rampOf  = (rgb, top) => Array.from({length:TAIL}, (_,t) =>
+      'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' +
+      (Math.max(0.06, 1 - t / TAIL) * top).toFixed(3) + ')');
+    // açık temada kuyruk da koyultulur → beyaz zeminde (özellikle sarıda) okunur kalır
+    const rampLight = rampOf(mulRGB(rgbOf(color), 0.62), 1.0);
+    const rampDark  = rampOf(rgbOf(color), 0.85);
+
+    let w = 0, h = 0, cols = 0, rows = 0, drops = [];
+
+    function measure(){
+      const r = canvas.getBoundingClientRect();
+      w = Math.round(r.width)  || canvas.clientWidth  || 260;
+      h = Math.round(r.height) || canvas.clientHeight || 112;
+      canvas.width  = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.font = '700 ' + FONT + "px 'JetBrains Mono', ui-monospace, monospace";
+      ctx.textBaseline = 'top';
+      cols = Math.max(1, Math.floor(w / FONT));
+      rows = Math.max(1, Math.ceil(h / FONT));
+    }
+
+    function newDrop(fromTop){
+      return {
+        // fromTop=true → sadece üstten; false → görünür alana da dağıt
+        y: fromTop ? -Math.random() * rows * 0.9
+                   : Math.random() * rows * 1.8 - rows * 0.8,
+        v: (0.14 + Math.random() * 0.32) * SPEED,   // kare başına düşen hücre
+        cell: -9999,
+        chars: Array.from({ length: TAIL }, rnd)
+      };
+    }
+
+    function seed(){
+      drops = Array.from({ length: cols }, () => newDrop(false));
+    }
+
+    function reset(){ measure(); seed(); }
+
+    function draw(){
+      if (!w || !h) return;
+      ctx.clearRect(0, 0, w, h);
+
+      const head = dark ? headOnDark : headOnLight;
+      const ramp = dark ? rampDark : rampLight;
+
+      for (let i = 0; i < cols; i++){
+        const d = drops[i];
+        const x = i * FONT;
+
+        // baş yeni hücreye geçtiyse kuyruğa taze karakter
+        const cell = Math.floor(d.y);
+        if (cell !== d.cell){
+          d.cell = cell;
+          d.chars.pop();
+          d.chars.unshift(rnd());
+        }
+        // ara ara rastgele karakter değişimi (canlı titreşim)
+        if (Math.random() < 0.16){
+          d.chars[1 + ((Math.random() * (TAIL - 1)) | 0)] = rnd();
+        }
+
+        const headY = d.y * FONT;   // ara piksel konumu → kesintisiz akış
+
+        for (let t = 0; t < TAIL; t++){
+          const y = headY - t * FONT;
+          if (y < -FONT || y > h) continue;
+          ctx.fillStyle = (t === 0) ? head : ramp[t];
+          ctx.fillText(d.chars[t], x, y);
+        }
+
+        d.y += d.v;
+        if (headY - TAIL * FONT > h) drops[i] = newDrop(true);
+      }
+    }
+
+    measure();
+    seed();
+    return { draw, reset, ok: () => w > 0 && h > 0 };
+  }
+
+  /* kurulum ------------------------------------------------------------ */
+  const rains = [];
+  document.querySelectorAll('.mem-rain canvas').forEach(c => rains.push(build(c)));
+  if (!rains.length) return;
+
+  // sayfa açılır açılmaz dolu görünsün
+  for (let k = 0; k < 3; k++) rains.forEach(r => r.draw());
+
+  /* ── animasyon döngüsü ── */
+  const grid = document.getElementById('teamGrid');
+  let inView = true, tick = 0, last = 0;
+
+  // görünürlük ölçümü: doğrudan konumdan: hiçbir koşulda takılıp kalmaz
+  function checkInView(){
+    if (!grid) return;
+    const r = grid.getBoundingClientRect();
+    inView = r.bottom > -500 && r.top < (window.innerHeight || 800) + 500;
+  }
+  checkInView();
+
+  function loop(now){
+    requestAnimationFrame(loop);
+    if (++tick % 12 === 0) checkInView();          // her ~12 karede bir tazele
+    if (document.hidden || !inView) return;        // sekme arkadaysa/uzaktaysa çizme
+    if (now - last < STEP) return;
+    last = now;
+    for (let i = 0; i < rains.length; i++) rains[i].draw();
+  }
+  requestAnimationFrame(loop);
+
+  /* ölçü tazeleme ------------------------------------------------------ */
+  const refresh = () => rains.forEach(r => r.reset());
+  let rt;
+  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(refresh, 180); });
+  window.addEventListener('load', refresh);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(refresh);
+  // düzen oturduktan sonra bir kez daha (genişlik 0 ölçülme ihtimaline karşı)
+  setTimeout(refresh, 300);
+})();
+
+/* ═══ RENDER: STACK ═══ */
+document.getElementById('stackGrid').innerHTML = STACK.map(l=>`
+  <div class="layer">
+    <div class="layer-head">
+      <div class="layer-ico" style="background:${l.c}"><i data-lucide="${l.ico}"></i></div>
+      <div><b>${l.t}</b><small>${l.s}</small></div>
+    </div>
+    <div class="tags">${l.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+  </div>`).join('');
+
+/* ═══ RENDER: ÖZELLİKLER ═══ */
+document.getElementById('featGrid').innerHTML = FEATS.map(f=>`
+  <div class="feat">
+    <div class="feat-ico"><i data-lucide="${f.i}"></i></div>
+    <div><b>${f.t}</b><p>${f.d}</p></div>
+  </div>`).join('');
+
+/* ═══ YOL HARİTASI: PİNLER ═══ */
+const svgNS = 'http://www.w3.org/2000/svg';
+const path = document.getElementById('roadPath');
+const fill = document.getElementById('roadPathFill');
+const dash = document.getElementById('roadPathDash');
+const pinLayer = document.getElementById('pinLayer');
+const len = path.getTotalLength();
+
+// yol çizim animasyonu için hazırlık
+fill.style.strokeDasharray = len;
+fill.style.strokeDashoffset = len;
+dash.style.opacity = 0;
+
+const stops = [0.09, 0.37, 0.63, 0.93];
+const pins = [];
+
+stops.forEach((f, idx)=>{
+  const p = path.getPointAtLength(len * f);
+  const ph = PHASES[idx];
+
+  const g = document.createElementNS(svgNS,'g');
+  g.setAttribute('class','pin');
+  g.setAttribute('transform',`translate(${p.x},${p.y})`);
+  g.dataset.idx = idx;
+
+  // halo
+  const halo = document.createElementNS(svgNS,'circle');
+  halo.setAttribute('class','pin-halo');
+  halo.setAttribute('cx',0); halo.setAttribute('cy',-46); halo.setAttribute('r',26);
+  halo.setAttribute('fill',ph.color);
+  g.appendChild(halo);
+
+  // pin gövdesi
+  const body = document.createElementNS(svgNS,'g');
+  body.setAttribute('class','pin-body');
+
+  const drop = document.createElementNS(svgNS,'path');
+  drop.setAttribute('d','M 0 0 C -8 -14, -23 -22, -23 -40 A 23 23 0 1 1 23 -40 C 23 -22, 8 -14, 0 0 Z');
+  drop.setAttribute('fill',ph.color);
+  drop.setAttribute('stroke','rgba(255,255,255,.9)');
+  drop.setAttribute('stroke-width','2.5');
+  body.appendChild(drop);
+
+  const num = document.createElementNS(svgNS,'text');
+  num.setAttribute('class','pin-num');
+  num.setAttribute('x',0); num.setAttribute('y',-36);
+  num.textContent = ph.n;
+  body.appendChild(num);
+
+  g.appendChild(body);
+
+  const dt = document.createElementNS(svgNS,'text');
+  dt.setAttribute('class','pin-date');
+  dt.setAttribute('x',0); dt.setAttribute('y',30);
+  dt.textContent = ph.when.split(' 2026')[0];
+  g.appendChild(dt);
+
+  g.addEventListener('click', ()=> selectPhase(idx));
+  pinLayer.appendChild(g);
+  pins.push(g);
+});
+
+/* nokta navigasyonu */
+document.getElementById('phNav').innerHTML = PHASES.map((_,i)=>`<button data-i="${i}"></button>`).join('');
+document.querySelectorAll('#phNav button').forEach(b=>{
+  b.addEventListener('click', ()=> selectPhase(+b.dataset.i));
+});
+
+let active = -1;
+function selectPhase(i){
+  if(i === active) return;
+  active = i;
+  const ph = PHASES[i];
+
+  pins.forEach((p,k)=> p.classList.toggle('on', k===i));
+  document.querySelectorAll('#phNav button').forEach((b,k)=> b.classList.toggle('on', k===i));
+
+  const card = document.getElementById('phaseCard');
+  card.style.opacity = 0;
+  card.style.transform = 'translateY(8px)';
+
+  setTimeout(()=>{
+    const badge = document.getElementById('phBadge');
+    badge.textContent = ph.n;
+    badge.style.background = `linear-gradient(135deg, ${ph.color}, ${ph.color}cc)`;
+    document.getElementById('phWhen').textContent = ph.when;
+    document.getElementById('phWhen').style.color = ph.color;
+    document.getElementById('phTitle').textContent = ph.title;
+    document.getElementById('phText').textContent = ph.text;
+    document.getElementById('phChips').innerHTML = ph.chips
+      .map(c=>`<span class="chip" style="background:${ph.color}1a;color:${ph.color};border-color:${ph.color}33">${c}</span>`).join('');
+    card.style.transition = 'opacity .3s ease, transform .3s ease';
+    card.style.opacity = 1;
+    card.style.transform = 'none';
+  }, 160);
+}
+selectPhase(0);
+
+/* ═══ SCROLL REVEAL + ANİMASYONLAR ═══ */
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting) return;
+    e.target.classList.add('in');
+
+    // sayaçlar
+    e.target.querySelectorAll('[data-count]').forEach(el=>{
+      if(el.dataset.done) return;
+      el.dataset.done = 1;
+      const target = +el.dataset.count;
+      const dur = 1100; const t0 = performance.now();
+      (function tick(now){
+        const k = Math.min(1,(now-t0)/dur);
+        const eased = 1 - Math.pow(1-k, 3);
+        el.textContent = Math.round(target*eased);
+        if(k<1) requestAnimationFrame(tick);
+      })(t0);
+    });
+
+    // marka barları
+    e.target.querySelectorAll('.brand-bar i[data-w]').forEach(el=>{
+      if(el.dataset.done) return;
+      el.dataset.done = 1;
+      setTimeout(()=> el.style.width = el.dataset.w + '%', 120);
+    });
+
+    io.unobserve(e.target);
+  });
+},{ threshold:0.18, rootMargin:'0px 0px -40px' });
+
+document.querySelectorAll('.rv').forEach(el=> io.observe(el));
+
+/* yol çizim animasyonu */
+const roadIO = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting) return;
+    fill.style.transition = 'stroke-dashoffset 2.2s cubic-bezier(.25,.8,.25,1)';
+    fill.style.strokeDashoffset = 0;
+    setTimeout(()=>{ dash.style.transition='opacity .6s'; dash.style.opacity = 1; }, 1400);
+    pins.forEach((p,i)=>{
+      p.style.opacity = 0;
+      p.style.transition = 'opacity .45s ease, transform .45s cubic-bezier(.2,1.4,.4,1)';
+      p.style.transformBox = 'fill-box';
+      setTimeout(()=>{ p.style.opacity = 1; }, 400 + i*380);
+    });
+    roadIO.unobserve(e.target);
+  });
+},{ threshold:0.25 });
+roadIO.observe(document.getElementById('roadSvg'));
+
+lucide.createIcons();
+</script>
+</body>
+</html>

@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PrintNexus · Analitik</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link rel="stylesheet" href="./style.css">
+  <style>
+    /* ANALYSIS PAGE SPECIFIC STYLES */
+    .brand-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      border-bottom: 2px solid var(--border);
+      overflow-x: auto;
+      padding-bottom: 12px;
+    }
+
+    .brand-tab {
+      padding: 10px 16px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      font-size: 14px;
+    }
+
+    .brand-tab:hover {
+      color: var(--text);
+    }
+
+    .brand-tab.active {
+      color: var(--brand);
+      border-bottom-color: var(--brand);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .analysis-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .analysis-card h3 {
+      margin: 0 0 16px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+      margin-bottom: 16px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+    }
+
+    .stat-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .stat-item .label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .stat-item .value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .report-section {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .report-info {
+      flex: 1;
+    }
+
+    .report-info h4 {
+      margin: 0 0 4px 0;
+      font-size: 14px;
+    }
+
+    .report-info p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .btn-download {
+      padding: 10px 16px;
+      background: var(--brand);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .btn-download:hover {
+      background: var(--brand-dark, #0066cc);
+      transform: translateY(-1px);
+    }
+
+    .btn-download:active {
+      transform: translateY(0);
+    }
+
+    @media (max-width: 768px) {
+      .analysis-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .brand-tabs {
+        justify-content: flex-start;
+      }
+
+      .brand-tab {
+        font-size: 12px;
+        padding: 8px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ══════════ SIDEBAR ══════════ -->
+  <aside class="sidebar">
+    <button class="sidebar-toggle-btn" onclick="toggleSidebar()">
+      <i data-lucide="chevron-left" id="sidebarChevron"></i>
+    </button>
+    <div class="brand">
+      <div class="brand-mark" style="background: transparent; box-shadow: none;">
+        <img src="./images/sasaend4.0wp.jpg" alt="SASA Logo" style="width: 100px; height: auto; object-fit: contain;">
+      </div>
+      <div class="brand-text">
+        <b>SASA PrintNexus</b>
+        <span>Endüstri 4.0</span>
+      </div>
+    </div>
+
+    <div class="side-label">Menü</div>
+    <nav class="nav">
+      <button class="nav-item" data-tab="overview" onclick="goTo('/')">
+        <i data-lucide="layout-dashboard"></i><span>Genel Bakış</span>
+      </button>
+      <button class="nav-item" data-tab="fleet" onclick="goTo('/')">
+        <i data-lucide="boxes"></i><span>Yazıcı Filosu</span>
+      </button>
+      <button class="nav-item active" data-tab="analytics" onclick="goTo('/analysis.html')">
+        <i data-lucide="bar-chart-3"></i><span>Analitik</span>
+      </button>
+      <button class="nav-item" data-tab="settings" onclick="goTo('/')">
+        <i data-lucide="settings"></i><span>Ayarlar</span>
+      </button>
+      <button class="nav-item" data-tab="production" onclick="goTo('/uretim-kayitlari.html')">
+        <i data-lucide="clipboard-list"></i><span>Üretim Kayıtları</span>
+      </button>
+      <button class="nav-item" data-tab="about" onclick="goTo('/about.html')" style="margin-top: 8px; border-top: 1px solid var(--line); padding-top: 8px;">
+        <i data-lucide="info"></i><span>Hakkında</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="avatar" id="userAvatar">A</div>
+        <div class="u-meta">
+          <b id="userName">-</b>
+          <span id="userRole">-</span>
+        </div>
+      </div>
+      <button class="icon-btn" onclick="toggleTheme()">
+        <i data-lucide="moon" id="themeIcon"></i><span id="themeText">Koyu Mod</span>
+      </button>
+      <button class="icon-btn danger" onclick="logout()">
+        <i data-lucide="log-out"></i><span>Çıkış Yap</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ══════════ MAIN ══════════ -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" onclick="toggleNav()"><i data-lucide="menu"></i></button>
+        <div class="page-title">
+          <h1 id="pageTitle">Analitik & Raporlar</h1>
+          <p id="pageSub">Yazıcı başına detaylı veriler</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="status-pill" id="ws-badge"><span class="dot"></span>Bağlantı yok</span>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- MARKA SEKMELERİ -->
+      <div class="brand-tabs" id="brandTabs">
+        <button class="brand-tab active" data-brand="ultimaker" onclick="switchBrand('ultimaker')">
+          <i data-lucide="box"></i> Ultimaker
+        </button>
+        <button class="brand-tab" data-brand="bambu" onclick="switchBrand('bambu')">
+          <i data-lucide="box"></i> Bambu
+        </button>
+        <button class="brand-tab" data-brand="raise3d" onclick="switchBrand('raise3d')">
+          <i data-lucide="box"></i> Raise3D
+        </button>
+        <button class="brand-tab" data-brand="guider" onclick="switchBrand('guider')">
+          <i data-lucide="box"></i> Guider
+        </button>
+        <button class="brand-tab" data-brand="zaxe" onclick="switchBrand('zaxe')">
+          <i data-lucide="box"></i> ZAXE
+        </button>
+        <button class="brand-tab" data-brand="all" onclick="switchBrand('all')">
+          <i data-lucide="layers"></i> Tüm Yazıcılar
+        </button>
+      </div>
+
+      <!-- ULTIMAKER SEKMESİ -->
+      <div class="tab-content active" id="tab-ultimaker">
+        <div class="analysis-grid">
+          <!-- Sıcaklık -->
+          <div class="analysis-card wide">
+            <h3><i data-lucide="thermometer"></i> Sıcaklık Geçmişi (Son 6 Saat)</h3>
+            <div class="chart-container">
+              <canvas id="temperatureChart-ultimaker"></canvas>
+            </div>
+          </div>
+
+          <!-- Baskı Sonuçları -->
+          <div class="analysis-card">
+            <h3><i data-lucide="pie-chart"></i> Baskı Sonuçları (30 Gün)</h3>
+            <div class="chart-container">
+              <canvas id="successRateChart-ultimaker"></canvas>
+            </div>
+          </div>
+
+          <!-- Verimlilik -->
+          <div class="analysis-card">
+            <h3><i data-lucide="gauge"></i> Yazıcı Verimliliği</h3>
+            <div class="chart-container">
+              <canvas id="efficiencyChart-ultimaker"></canvas>
+            </div>
+          </div>
+
+          <!-- İstatistikler -->
+          <div class="analysis-card">
+            <h3><i data-lucide="bar-chart-3"></i> İstatistikler</h3>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="label">Toplam Yazıcı</div>
+                <div class="value" id="stat-printers-ultimaker">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarılı</div>
+                <div class="value" id="stat-success-ultimaker">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarısız</div>
+                <div class="value" id="stat-failed-ultimaker">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Ortalama Verim</div>
+                <div class="value" id="stat-avg-efficiency-ultimaker">0%</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- YAZICI SEÇİMİ -->
+          <div class="analysis-card" id="printerSelectorContainer-ultimaker" style="display: none;">
+            <h3><i data-lucide="box"></i> Yazıcı Seçin</h3>
+            <select id="printerSelect-ultimaker" onchange="selectPrinter(this.value, 'ultimaker')" 
+              style="padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; 
+                     font-size: 14px; background: var(--surface); color: var(--text); width: 100%;">
+              <option value="">-- Yazıcı Seçin --</option>
+            </select>
+          </div>
+
+          <!-- YAZICI DETAY KARTLARı -->
+          <div class="analysis-card" id="printerDetailStats-ultimaker" style="display: none;">
+            <h3><i data-lucide="bar-chart-3"></i> Seçilen Yazıcı (30 Gün)</h3>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="label">Çalışma Saati</div>
+                <div class="value" id="detail-workingHours-ultimaker">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Toplam Baskı</div>
+                <div class="value" id="detail-totalPrints-ultimaker">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarılı</div>
+                <div class="value" id="detail-successful-ultimaker" style="color: #10B981;">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarısız</div>
+                <div class="value" id="detail-failed-ultimaker" style="color: #EF4444;">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarı %</div>
+                <div class="value" id="detail-successRate-ultimaker">0%</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Hata %</div>
+                <div class="value" id="detail-errorRate-ultimaker" style="color: #EF4444;">0%</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Önerilen Bakım</div>
+                <div class="value" id="detail-daysUntilMaintenance-ultimaker">-</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rapor İndir -->
+          <div class="analysis-card">
+            <h3><i data-lucide="file-text"></i> Rapor İndir</h3>
+            <div style="margin-bottom: 12px;">
+              <label for="reportFormat-ultimaker" style="display: block; font-size: 12px; margin-bottom: 4px;">📥 Format:</label>
+              <select id="reportFormat-ultimaker" style="padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 12px; width: 100%;">
+                <option value="txt">📄 TXT</option>
+                <option value="xlsx">📊 Excel</option>
+                <option value="csv">📋 CSV</option>
+              </select>
+            </div>
+            <div class="report-section">
+              <div class="report-info">
+                <h4>Ultimaker Raporu</h4>
+                <p>30 günlük detaylı veri</p>
+              </div>
+              <button class="btn-download" onclick="downloadBrandReport('ultimaker')">
+                <i data-lucide="download"></i> İndir
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BAMBU SEKMESİ -->
+      <div class="tab-content" id="tab-bambu">
+        <div class="analysis-grid">
+          <div class="analysis-card wide">
+            <h3><i data-lucide="thermometer"></i> Sıcaklık Geçmişi (Son 6 Saat)</h3>
+            <div class="chart-container">
+              <canvas id="temperatureChart-bambu"></canvas>
+            </div>
+          </div>
+
+          <div class="analysis-card">
+            <h3><i data-lucide="pie-chart"></i> Baskı Sonuçları (30 Gün)</h3>
+            <div class="chart-container">
+              <canvas id="successRateChart-bambu"></canvas>
+            </div>
+          </div>
+
+          <div class="analysis-card">
+            <h3><i data-lucide="gauge"></i> Yazıcı Verimliliği</h3>
+            <div class="chart-container">
+              <canvas id="efficiencyChart-bambu"></canvas>
+            </div>
+          </div>
+
+          <div class="analysis-card">
+            <h3><i data-lucide="bar-chart-3"></i> İstatistikler</h3>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="label">Toplam Yazıcı</div>
+                <div class="value" id="stat-printers-bambu">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarılı</div>
+                <div class="value" id="stat-success-bambu">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarısız</div>
+                <div class="value" id="stat-failed-bambu">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Ortalama Verim</div>
+                <div class="value" id="stat-avg-efficiency-bambu">0%</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- YAZICI SEÇİMİ -->
+          <div class="analysis-card" id="printerSelectorContainer-bambu" style="display: none;">
+            <h3><i data-lucide="box"></i> Yazıcı Seçin</h3>
+            <select id="printerSelect-bambu" onchange="selectPrinter(this.value, 'bambu')" 
+              style="padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; 
+                     font-size: 14px; background: var(--surface); color: var(--text); width: 100%;">
+              <option value="">-- Yazıcı Seçin --</option>
+            </select>
+          </div>
+
+          <!-- YAZICI DETAY KARTLARı -->
+          <div class="analysis-card" id="printerDetailStats-bambu" style="display: none;">
+            <h3><i data-lucide="bar-chart-3"></i> Seçilen Yazıcı (30 Gün)</h3>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="label">Çalışma Saati</div>
+                <div class="value" id="detail-workingHours-bambu">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Toplam Baskı</div>
+                <div class="value" id="detail-totalPrints-bambu">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarılı</div>
+                <div class="value" id="detail-successful-bambu" style="color: #10B981;">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarısız</div>
+                <div class="value" id="detail-failed-bambu" style="color: #EF4444;">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarı %</div>
+                <div class="value" id="detail-successRate-bambu">0%</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Hata %</div>
+                <div class="value" id="detail-errorRate-bambu" style="color: #EF4444;">0%</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Önerilen Bakım</div>
+                <div class="value" id="detail-daysUntilMaintenance-bambu">-</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="analysis-card">
+            <h3><i data-lucide="file-text"></i> Rapor İndir</h3>
+            <div style="margin-bottom: 12px;">
+              <label for="reportFormat-bambu" style="display: block; font-size: 12px; margin-bottom: 4px;">📥 Format:</label>
+              <select id="reportFormat-bambu" style="padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 12px; width: 100%;">
+                <option value="txt">📄 TXT</option>
+                <option value="xlsx">📊 Excel</option>
+                <option value="csv">📋 CSV</option>
+              </select>
+            </div>
+            <div class="report-section">
+              <div class="report-info">
+                <h4>Bambu Raporu</h4>
+                <p>30 günlük detaylı veri</p>
+              </div>
+              <button class="btn-download" onclick="downloadBrandReport('bambu')">
+                <i data-lucide="download"></i> İndir
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RAISE3D SEKMESİ -->
+      <div class="tab-content" id="tab-raise3d">
+        <div class="analysis-grid">
+          <div class="analysis-card wide">
+            <h3><i data-lucide="thermometer"></i> Sıcaklık Geçmişi (Son 6 Saat)</h3>
+            <div class="chart-container">
+              <canvas id="temperatureChart-raise3d"></canvas>
+            </div>
+          </div>
+
+          <div class="analysis-card">
+            <h3><i data-lucide="pie-chart"></i> Baskı Sonuçları (30 Gün)</h3>
+            <div class="chart-container">
+              <canvas id="successRateChart-raise3d"></canvas>
+            </div>
+          </div>
+
+          <div class="analysis-card">
+            <h3><i data-lucide="gauge"></i> Yazıcı Verimliliği</h3>
+            <div class="chart-container">
+              <canvas id="efficiencyChart-raise3d"></canvas>
+            </div>
+          </div>
+
+          <div class="analysis-card">
+            <h3><i data-lucide="bar-chart-3"></i> İstatistikler</h3>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="label">Toplam Yazıcı</div>
+                <div class="value" id="stat-printers-raise3d">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarılı</div>
+                <div class="value" id="stat-success-raise3d">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarısız</div>
+                <div class="value" id="stat-failed-raise3d">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Ortalama Verim</div>
+                <div class="value" id="stat-avg-efficiency-raise3d">0%</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- YAZICI SEÇİMİ -->
+          <div class="analysis-card" id="printerSelectorContainer-raise3d" style="display: none;">
+            <h3><i data-lucide="box"></i> Yazıcı Seçin</h3>
+            <select id="printerSelect-raise3d" onchange="selectPrinter(this.value, 'raise3d')" 
+              style="padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; 
+                     font-size: 14px; background: var(--surface); color: var(--text); width: 100%;">
+              <option value="">-- Yazıcı Seçin --</option>
+            </select>
+          </div>
+
+          <!-- YAZICI DETAY KARTLARı -->
+          <div class="analysis-card" id="printerDetailStats-raise3d" style="display: none;">
+            <h3><i data-lucide="bar-chart-3"></i> Seçilen Yazıcı (30 Gün)</h3>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="label">Çalışma Saati</div>
+                <div class="value" id="detail-workingHours-raise3d">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Toplam Baskı</div>
+                <div class="value" id="detail-totalPrints-raise3d">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarılı</div>
+                <div class="value" id="detail-successful-raise3d" style="color: #10B981;">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarısız</div>
+                <div class="value" id="detail-failed-raise3d" style="color: #EF4444;">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarı %</div>
+                <div class="value" id="detail-successRate-raise3d">0%</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Hata %</div>
+                <div class="value" id="detail-errorRate-raise3d" style="color: #EF4444;">0%</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Önerilen Bakım</div>
+                <div class="value" id="detail-daysUntilMaintenance-raise3d">-</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="analysis-card">
+            <h3><i data-lucide="file-text"></i> Rapor İndir</h3>
+            <div style="margin-bottom: 12px;">
+              <label for="reportFormat-raise3d" style="display: block; font-size: 12px; margin-bottom: 4px;">📥 Format:</label>
+              <select id="reportFormat-raise3d" style="padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 12px; width: 100%;">
+                <option value="txt">📄 TXT</option>
+                <option value="xlsx">📊 Excel</option>
+                <option value="csv">📋 CSV</option>
+              </select>
+            </div>
+            <div class="report-section">
+              <div class="report-info">
+                <h4>Raise3D Raporu</h4>
+                <p>30 günlük detaylı veri</p>
+              </div>
+              <button class="btn-download" onclick="downloadBrandReport('raise3d')">
+                <i data-lucide="download"></i> İndir
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GUIDER SEKMESİ -->
+      <div class="tab-content" id="tab-guider">
+        <div class="analysis-grid">
+          <div class="analysis-card wide">
+            <h3><i data-lucide="thermometer"></i> Sıcaklık Geçmişi (Son 6 Saat)</h3>
+            <div class="chart-container">
+              <canvas id="temperatureChart-guider"></canvas>
+            </div>
+          </div>
+
+          <div class="analysis-card">
+            <h3><i data-lucide="pie-chart"></i> Baskı Sonuçları (30 Gün)</h3>
+            <div class="chart-container">
+              <canvas id="successRateChart-guider"></canvas>
+            </div>
+          </div>
+
+          <div class="analysis-card">
+            <h3><i data-lucide="gauge"></i> Yazıcı Verimliliği</h3>
+            <div class="chart-container">
+              <canvas id="efficiencyChart-guider"></canvas>
+            </div>
+          </div>
+
+          <div class="analysis-card">
+            <h3><i data-lucide="bar-chart-3"></i> İstatistikler</h3>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="label">Toplam Yazıcı</div>
+                <div class="value" id="stat-printers-guider">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarılı</div>
+                <div class="value" id="stat-success-guider">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarısız</div>
+                <div class="value" id="stat-failed-guider">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Ortalama Verim</div>
+                <div class="value" id="stat-avg-efficiency-guider">0%</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- YAZICI SEÇİMİ -->
+          <div class="analysis-card" id="printerSelectorContainer-guider" style="display: none;">
+            <h3><i data-lucide="box"></i> Yazıcı Seçin</h3>
+            <select id="printerSelect-guider" onchange="selectPrinter(this.value, 'guider')" 
+              style="padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; 
+                     font-size: 14px; background: var(--surface); color: var(--text); width: 100%;">
+              <option value="">-- Yazıcı Seçin --</option>
+            </select>
+          </div>
+
+          <!-- YAZICI DETAY KARTLARı -->
+          <div class="analysis-card" id="printerDetailStats-guider" style="display: none;">
+            <h3><i data-lucide="bar-chart-3"></i> Seçilen Yazıcı (30 Gün)</h3>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="label">Çalışma Saati</div>
+                <div class="value" id="detail-workingHours-guider">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Toplam Baskı</div>
+                <div class="value" id="detail-totalPrints-guider">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarılı</div>
+                <div class="value" id="detail-successful-guider" style="color: #10B981;">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarısız</div>
+                <div class="value" id="detail-failed-guider" style="color: #EF4444;">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarı %</div>
+                <div class="value" id="detail-successRate-guider">0%</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Hata %</div>
+                <div class="value" id="detail-errorRate-guider" style="color: #EF4444;">0%</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Önerilen Bakım</div>
+                <div class="value" id="detail-daysUntilMaintenance-guider">-</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="analysis-card">
+            <h3><i data-lucide="file-text"></i> Rapor İndir</h3>
+            <div style="margin-bottom: 12px;">
+              <label for="reportFormat-guider" style="display: block; font-size: 12px; margin-bottom: 4px;">📥 Format:</label>
+              <select id="reportFormat-guider" style="padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 12px; width: 100%;">
+                <option value="txt">📄 TXT</option>
+                <option value="xlsx">📊 Excel</option>
+                <option value="csv">📋 CSV</option>
+              </select>
+            </div>
+            <div class="report-section">
+              <div class="report-info">
+                <h4>Guider Raporu</h4>
+                <p>30 günlük detaylı veri</p>
+              </div>
+              <button class="btn-download" onclick="downloadBrandReport('guider')">
+                <i data-lucide="download"></i> İndir
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ZAXE SEKMESİ -->
+      <div class="tab-content" id="tab-zaxe">
+        <div class="analysis-grid">
+          <div class="analysis-card wide">
+            <h3><i data-lucide="thermometer"></i> Sıcaklık Geçmişi (Son 6 Saat)</h3>
+            <div class="chart-container">
+              <canvas id="temperatureChart-zaxe"></canvas>
+            </div>
+          </div>
+
+          <div class="analysis-card">
+            <h3><i data-lucide="pie-chart"></i> Baskı Sonuçları (30 Gün)</h3>
+            <div class="chart-container">
+              <canvas id="successRateChart-zaxe"></canvas>
+            </div>
+          </div>
+
+          <div class="analysis-card">
+            <h3><i data-lucide="gauge"></i> Yazıcı Verimliliği</h3>
+            <div class="chart-container">
+              <canvas id="efficiencyChart-zaxe"></canvas>
+            </div>
+          </div>
+
+          <div class="analysis-card">
+            <h3><i data-lucide="bar-chart-3"></i> İstatistikler</h3>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="label">Toplam Yazıcı</div>
+                <div class="value" id="stat-printers-zaxe">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarılı</div>
+                <div class="value" id="stat-success-zaxe">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarısız</div>
+                <div class="value" id="stat-failed-zaxe">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Ortalama Verim</div>
+                <div class="value" id="stat-avg-efficiency-zaxe">0%</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- YAZICI SEÇİMİ -->
+          <div class="analysis-card" id="printerSelectorContainer-zaxe" style="display: none;">
+            <h3><i data-lucide="box"></i> Yazıcı Seçin</h3>
+            <select id="printerSelect-zaxe" onchange="selectPrinter(this.value, 'zaxe')" 
+              style="padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; 
+                     font-size: 14px; background: var(--surface); color: var(--text); width: 100%;">
+              <option value="">-- Yazıcı Seçin --</option>
+            </select>
+          </div>
+
+          <!-- YAZICI DETAY KARTLARı -->
+          <div class="analysis-card" id="printerDetailStats-zaxe" style="display: none;">
+            <h3><i data-lucide="bar-chart-3"></i> Seçilen Yazıcı (30 Gün)</h3>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="label">Çalışma Saati</div>
+                <div class="value" id="detail-workingHours-zaxe">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Toplam Baskı</div>
+                <div class="value" id="detail-totalPrints-zaxe">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarılı</div>
+                <div class="value" id="detail-successful-zaxe" style="color: #10B981;">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarısız</div>
+                <div class="value" id="detail-failed-zaxe" style="color: #EF4444;">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarı %</div>
+                <div class="value" id="detail-successRate-zaxe">0%</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Hata %</div>
+                <div class="value" id="detail-errorRate-zaxe" style="color: #EF4444;">0%</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Önerilen Bakım</div>
+                <div class="value" id="detail-daysUntilMaintenance-zaxe">-</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="analysis-card">
+            <h3><i data-lucide="file-text"></i> Rapor İndir</h3>
+            <div style="margin-bottom: 12px;">
+              <label for="reportFormat-zaxe" style="display: block; font-size: 12px; margin-bottom: 4px;">📥 Format:</label>
+              <select id="reportFormat-zaxe" style="padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 12px; width: 100%;">
+                <option value="txt">📄 TXT</option>
+                <option value="xlsx">📊 Excel</option>
+                <option value="csv">📋 CSV</option>
+              </select>
+            </div>
+            <div class="report-section">
+              <div class="report-info">
+                <h4>ZAXE Raporu</h4>
+                <p>30 günlük detaylı veri</p>
+              </div>
+              <button class="btn-download" onclick="downloadBrandReport('zaxe')">
+                <i data-lucide="download"></i> İndir
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TÜM YAZICILAR SEKMESİ -->
+      <div class="tab-content" id="tab-all">
+        <div class="analysis-grid">
+          <!-- İstatistikler -->
+          <div class="analysis-card">
+            <h3><i data-lucide="bar-chart-3"></i> İstatistikler</h3>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="label">Toplam Yazıcı</div>
+                <div class="value" id="stat-printers-all">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarılı</div>
+                <div class="value" id="stat-success-all">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Başarısız</div>
+                <div class="value" id="stat-failed-all">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="label">Ortalama Verim</div>
+                <div class="value" id="stat-avg-efficiency-all">0%</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Baskı Sonuçları -->
+          <div class="analysis-card">
+            <h3><i data-lucide="pie-chart"></i> Baskı Sonuçları (30 Gün)</h3>
+            <div class="chart-container">
+              <canvas id="printResultsChart-all"></canvas>
+            </div>
+          </div>
+
+          <!-- Yazıcı Verimiliği -->
+          <div class="analysis-card wide">
+            <h3><i data-lucide="trending-up"></i> Yazıcı Verimiliği</h3>
+            <div class="chart-container">
+              <canvas id="efficiencyChart-all"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <footer class="app-footer">
+        SASA Endüstri 4.0 - PrintNexus - 2026
+      </footer>
+    </div>
+  </div>
+
+</div>
+
+<script src="./analysis.js"></script>
+</body>
+</html>

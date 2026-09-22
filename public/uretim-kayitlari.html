@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Üretim Kayıtları · PrintNexus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link rel="stylesheet" href="./style.css">
+  <script>
+    try { document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light'); } catch (e) {}
+    try { if (!localStorage.getItem('token')) location.replace('/'); } catch (e) {}
+  </script>
+  <style>
+    .uk-tabs { display:flex; gap:6px; border-bottom:2px solid var(--line); margin-bottom:20px; flex-wrap:wrap; }
+    .uk-tab { padding:10px 16px; border:none; background:transparent; cursor:pointer; color:var(--ink-muted);
+              border-bottom:3px solid transparent; margin-bottom:-2px; font-weight:600; font-size:14px;
+              display:flex; align-items:center; gap:8px; font-family:inherit; }
+    .uk-tab.active { color:var(--primary); border-bottom-color:var(--primary); }
+    .uk-pane { display:none; } .uk-pane.active { display:block; }
+    .uk-card { background:var(--surface,#fff); border:1px solid var(--line); border-radius:14px; padding:22px; margin-bottom:20px; }
+    .uk-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr)); gap:16px; }
+    .uk-field { display:flex; flex-direction:column; gap:6px; }
+    .uk-field label { font-size:13px; font-weight:600; color:var(--ink); }
+    .uk-field .req { color:var(--err,#e53935); }
+    .uk-input, .uk-select, .uk-textarea {
+      padding:10px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px; font-family:inherit;
+      background:var(--bg,transparent); color:var(--ink); width:100%; box-sizing:border-box; }
+    .uk-input:focus, .uk-select:focus, .uk-textarea:focus { outline:none; border-color:var(--primary); }
+    .uk-input.bad, .uk-select.bad { border-color:var(--err,#e53935); background:rgba(229,57,53,.06); }
+    .uk-input.auto, .uk-select.auto { background:rgba(99,102,241,.07); }
+    .uk-textarea { resize:vertical; min-height:70px; }
+    .fieldnote { font-size:11px; color:var(--ink-muted); }
+    .fieldnote.warn { color:#b26a00; font-weight:600; }
+    .fielderr { font-size:11px; color:var(--err,#e53935); font-weight:600; min-height:13px; }
+    .uk-calc { background:var(--primary); color:#fff; border-radius:12px; padding:18px; margin-top:18px; }
+    .uk-calc .row { display:flex; justify-content:space-between; font-size:14px; margin-bottom:8px; gap:12px; }
+    .uk-calc .row.total { border-top:1px solid rgba(255,255,255,.28); padding-top:10px; margin-top:6px; font-size:17px; font-weight:700; }
+    .uk-calc .formula { font-size:10.5px; opacity:.75; font-family:'JetBrains Mono',monospace; }
+    .uk-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(175px,1fr)); gap:16px; margin-bottom:20px; }
+    .uk-stat { background:var(--surface,#fff); border:1px solid var(--line); border-radius:14px; padding:18px; text-align:center; }
+    .uk-stat h4 { margin:0 0 8px; font-size:11px; font-weight:600; letter-spacing:.6px; text-transform:uppercase; color:var(--ink-muted); }
+    .uk-stat .v { font-size:25px; font-weight:800; color:var(--primary); }
+    .uk-stat .u { font-size:11px; color:var(--ink-muted); margin-top:4px; }
+    .uk-chartbox { background:var(--surface,#fff); border:1px solid var(--line); border-radius:14px; padding:18px; margin-bottom:20px; height:340px; }
+    .uk-table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:14px; }
+    table.uk-table { width:100%; border-collapse:collapse; font-size:13px; }
+    table.uk-table thead { background:var(--surface-2,rgba(127,127,127,.08)); }
+    table.uk-table th { text-align:left; padding:11px; font-weight:600; color:var(--ink); white-space:nowrap; }
+    table.uk-table td { padding:10px 11px; border-top:1px solid var(--line); white-space:nowrap; }
+    table.uk-table td.num { text-align:right; font-family:'JetBrains Mono',monospace; }
+    .kar-pos { color:#2e7d32; font-weight:700; } .kar-neg { color:var(--err,#e53935); font-weight:700; }
+    .del-btn { border:1px solid var(--line); background:transparent; color:var(--err,#e53935); border-radius:8px;
+               padding:5px 9px; cursor:pointer; font-size:12px; font-family:inherit; display:inline-flex; align-items:center; gap:5px; }
+    .del-btn:hover { background:rgba(229,57,53,.1); border-color:var(--err,#e53935); }
+    .del-btn:disabled { opacity:.45; cursor:not-allowed; }
+    .uk-alert { padding:12px 14px; border-radius:10px; margin-bottom:14px; font-size:13.5px; display:none; }
+    .uk-alert.ok   { display:block; background:rgba(67,160,71,.12);  color:#2e7d32;            border:1px solid rgba(67,160,71,.3); }
+    .uk-alert.err  { display:block; background:rgba(229,57,53,.12);  color:var(--err,#e53935); border:1px solid rgba(229,57,53,.3); }
+    .uk-alert.warn { display:block; background:rgba(255,167,38,.14); color:#b26a00;            border:1px solid rgba(255,167,38,.35); }
+    .uk-alert ul { margin:6px 0 0; padding-left:18px; } .uk-alert li { margin:2px 0; }
+    .uk-toolbar { display:flex; justify-content:flex-end; gap:10px; margin-bottom:14px; flex-wrap:wrap; align-items:center; }
+    .sub-tabs { display:flex; gap:4px; border-bottom:1px solid var(--line); margin-bottom:14px; }
+    .sub-tab { padding:8px 12px; border:none; background:transparent; cursor:pointer; color:var(--ink-muted);
+               font-size:13px; font-weight:500; border-bottom:2px solid transparent; margin-bottom:-1px; font-family:inherit; }
+    .sub-tab.active { color:var(--primary); border-bottom-color:var(--primary); }
+    .sub-pane { display:none; } .sub-pane.active { display:block; }
+    .info-box { background:var(--surface-2,rgba(127,127,127,.08)); padding:12px 14px; border-radius:10px; margin-bottom:14px; font-size:13px; }
+    .info-box strong { color:var(--primary); }
+    .sec-title { margin:22px 0 12px; font-size:13px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:var(--ink-muted); }
+    .muted { color:var(--ink-muted); }
+  </style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <aside class="sidebar">
+    <button class="sidebar-toggle-btn" onclick="ukToggleSidebar()"><i data-lucide="chevron-left" id="sidebarChevron"></i></button>
+    <div class="brand">
+      <div class="brand-mark" style="background:transparent;box-shadow:none;">
+        <img src="./images/sasaend4.0wp.jpg" alt="SASA Logo" style="width:100px;height:auto;object-fit:contain;">
+      </div>
+      <div class="brand-text"><b>SASA PrintNexus</b><span>Endüstri 4.0</span></div>
+    </div>
+
+    <div class="side-label">Menü</div>
+    <nav class="nav">
+      <button class="nav-item" onclick="location.href='/'"><i data-lucide="layout-dashboard"></i><span>Genel Bakış</span></button>
+      <button class="nav-item" onclick="location.href='/'"><i data-lucide="boxes"></i><span>Yazıcı Filosu</span></button>
+      <button class="nav-item" onclick="location.href='/analysis.html'"><i data-lucide="bar-chart-3"></i><span>Analitik</span></button>
+      <button class="nav-item" onclick="location.href='/'"><i data-lucide="settings"></i><span>Ayarlar</span></button>
+      <button class="nav-item active" data-tab="production"><i data-lucide="clipboard-list"></i><span>Üretim Kayıtları</span></button>
+      <button class="nav-item" onclick="location.href='/about.html'" style="margin-top:8px;border-top:1px solid var(--line);padding-top:8px;"><i data-lucide="info"></i><span>Hakkında</span></button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-chip"><div class="avatar" id="userAvatar">A</div><div class="u-meta"><b id="userName">-</b><span id="userRole">-</span></div></div>
+      <button class="icon-btn" onclick="ukToggleTheme()"><i data-lucide="moon" id="themeIcon"></i><span id="themeText">Koyu Mod</span></button>
+      <button class="icon-btn danger" onclick="ukLogout()"><i data-lucide="log-out"></i><span>Çıkış Yap</span></button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" onclick="ukToggleNav()"><i data-lucide="menu"></i></button>
+        <div class="page-title"><h1>Üretim Kayıtları</h1><p>3D baskı üretim kaydı ve raporlama</p></div>
+      </div>
+      <div class="topbar-right">
+        <button class="ghost-btn" onclick="ukExportExcel()" title="Filtrelenmiş kayıtları Excel indir"><i data-lucide="download"></i> Excel</button>
+        <button class="ghost-btn" id="ukCurrencyBtn" onclick="ukToggleCurrency()" title="Para birimi">₺ TL</button>
+        <button class="ghost-btn" onclick="ukLoadReports()" title="Yenile"><i data-lucide="refresh-cw"></i></button>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <div class="uk-tabs">
+        <button class="uk-tab active" onclick="ukSwitch('form',this)"><i data-lucide="plus-circle" style="width:16px"></i> Yeni Kayıt</button>
+        <button class="uk-tab" onclick="ukSwitch('records',this)"><i data-lucide="list" style="width:16px"></i> Kayıtlar</button>
+        <button class="uk-tab" onclick="ukSwitch('reports',this)"><i data-lucide="bar-chart-3" style="width:16px"></i> Raporlar</button>
+      </div>
+
+      <!-- ══════════════ YENİ KAYIT ══════════════ -->
+      <div id="ukPane-form" class="uk-pane active">
+
+        <div class="sub-tabs">
+          <button class="sub-tab active" onclick="ukSubSwitch('bambu',this)"><i data-lucide="zap" style="width:14px;margin-right:6px"></i>Bambu'dan Çek</button>
+          <button class="sub-tab" onclick="ukSubSwitch('manual',this)"><i data-lucide="pencil" style="width:14px;margin-right:6px"></i>Elle Gir</button>
+        </div>
+
+        <!-- ── BAMBU ── -->
+        <div id="ukSubPane-bambu" class="sub-pane active">
+          <div class="uk-card">
+            <div id="ukBambuAlert" class="uk-alert"></div>
+            <div id="ukBambuWarn" class="uk-alert"></div>
+
+            <div class="info-box">
+              <strong>Bambu Lab yazıcılar:</strong> Yazıcıyı seç → okunabilen alanlar otomatik dolar →
+              <strong>okunamayanları elle tamamla</strong> → kaydet.
+              Mavi zeminli alanlar yazıcıdan gelir; hepsi düzenlenebilir.
+            </div>
+
+            <div class="uk-grid">
+              <div class="uk-field">
+                <label>Bambu Yazıcı <span class="req">*</span></label>
+                <select id="b_yazici" class="uk-select" onchange="ukLoadBambuData()"><option value="">-- Seçin --</option></select>
+                <div class="fielderr" id="e_b_yazici"></div>
+              </div>
+            </div>
+
+            <div id="ukBambuFormContainer" style="display:none;">
+
+              <div class="sec-title">Yazıcıdan Gelen (düzenlenebilir)</div>
+              <div class="uk-grid">
+                <div class="uk-field">
+                  <label>Tarih <span class="req">*</span></label>
+                  <input id="b_tarih" type="date" class="uk-input auto">
+                  <div class="fielderr" id="e_b_tarih"></div>
+                </div>
+                <div class="uk-field">
+                  <label>Malzeme Adı</label>
+                  <input id="b_malzeme" type="text" class="uk-input auto" placeholder="Baskı adı">
+                  <div class="fieldnote">Baskı dosyası adı; düzeltebilirsiniz.</div>
+                </div>
+                <div class="uk-field">
+                  <label>Filament Türü <span class="req">*</span></label>
+                  <select id="b_ftur" class="uk-select auto" onchange="ukBambuCalc()">
+                    <option value="">-- Seçin --</option>
+                    <option>PLA</option><option>PETG</option><option>ABS</option><option>TPU</option>
+                    <option>PC</option><option>ASA</option><option>EPA</option><option>CF15</option><option>EPC</option>
+                  </select>
+                  <div class="fieldnote" id="n_b_ftur">—</div>
+                  <div class="fielderr" id="e_b_ftur"></div>
+                </div>
+                <div class="uk-field">
+                  <label>Filament Rengi</label>
+                  <input id="b_frenk" type="text" class="uk-input auto" placeholder="Siyah, Beyaz…">
+                </div>
+                <div class="uk-field">
+                  <label>Filament Gramajı (gr) <span class="req">*</span></label>
+                  <input id="b_gramaj" type="text" inputmode="decimal" class="uk-input" placeholder="örn: 45" oninput="ukBambuCalc()">
+                  <div class="fieldnote warn" id="n_b_gramaj">Bambu bu veriyi LAN üzerinden yayınlamıyor — elle girin.</div>
+                  <div class="fielderr" id="e_b_gramaj"></div>
+                </div>
+                <div class="uk-field">
+                  <label>Çalışma Süresi (dk) <span class="req">*</span></label>
+                  <input id="b_sure" type="text" inputmode="decimal" class="uk-input auto" oninput="ukBambuCalc()">
+                  <div class="fieldnote" id="n_b_sure">—</div>
+                  <div class="fielderr" id="e_b_sure"></div>
+                </div>
+              </div>
+
+              <div class="sec-title">Elle Tamamlanacak Alanlar</div>
+              <div class="uk-grid">
+                <div class="uk-field">
+                  <label>Bölüm <span class="req">*</span></label>
+                  <select id="b_bolum" class="uk-select"><option value="">-- Seçin --</option></select>
+                  <div class="fielderr" id="e_b_bolum"></div>
+                </div>
+                <div class="uk-field">
+                  <label>Masraf Kodu</label>
+                  <input id="b_masraf" type="text" inputmode="numeric" class="uk-input" placeholder="30263">
+                  <div class="fielderr" id="e_b_masraf"></div>
+                </div>
+                <div class="uk-field">
+                  <label>Adet <span class="req">*</span></label>
+                  <input id="b_adet" type="text" inputmode="decimal" class="uk-input" value="1" oninput="ukBambuCalc()">
+                  <div class="fielderr" id="e_b_adet"></div>
+                </div>
+                <div class="uk-field">
+                  <label>Orijinal Fiyat (USD)</label>
+                  <input id="b_orijinal" type="text" inputmode="decimal" class="uk-input" placeholder="0" oninput="ukBambuCalc()">
+                  <div class="fieldnote">Parça piyasadan alınsaydı birim fiyatı.</div>
+                  <div class="fielderr" id="e_b_orijinal"></div>
+                </div>
+                <div class="uk-field">
+                  <label>Proje &amp; Çizim Bedeli (USD)</label>
+                  <input id="b_proje" type="text" inputmode="decimal" class="uk-input" value="0" oninput="ukBambuCalc()">
+                  <div class="fielderr" id="e_b_proje"></div>
+                </div>
+                <div class="uk-field">
+                  <label>Elektrik Ücreti (USD/saat)</label>
+                  <input id="b_elektrik" type="text" inputmode="decimal" class="uk-input" value="0.09" oninput="ukBambuCalc()">
+                  <div class="fieldnote">Varsayılan 0.09 — gerekirse değiştirin.</div>
+                  <div class="fielderr" id="e_b_elektrik"></div>
+                </div>
+                <div class="uk-field">
+                  <label>Sınıflandırma</label>
+                  <select id="b_sinif" class="uk-select">
+                    <option value="DIĞER">Diğer</option><option value="YEDEK PARÇA">Yedek Parça</option>
+                    <option value="TANITIM MALZEMESİ">Tanıtım Malzemesi</option><option value="GÖRSEL YÖNETİM">Görsel Yönetim</option>
+                    <option value="PROJE">Proje</option><option value="DENEME">Deneme</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="uk-field" style="margin-top:16px;">
+                <label>Açıklama</label>
+                <textarea id="b_aciklama" class="uk-textarea" placeholder="Ek notlar…"></textarea>
+              </div>
+
+              <div class="uk-calc" id="bCalcBox"></div>
+
+              <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;">
+                <button class="btn btn-primary" onclick="ukBambuSubmit()"><i data-lucide="save"></i> Kayıt Oluştur</button>
+                <button class="btn btn-ghost" onclick="ukBambuReset()"><i data-lucide="refresh-cw"></i> Temizle</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── ELLE ── -->
+        <div id="ukSubPane-manual" class="sub-pane">
+          <div class="uk-card">
+            <div id="ukFormAlert" class="uk-alert"></div>
+
+            <div class="uk-grid">
+              <div class="uk-field">
+                <label>Yazıcı <span class="req">*</span></label>
+                <select id="f_yazici" class="uk-select"><option value="">-- Seçin --</option></select>
+                <div class="fielderr" id="e_f_yazici"></div>
+              </div>
+              <div class="uk-field">
+                <label>Tarih <span class="req">*</span></label>
+                <input id="f_tarih" type="date" class="uk-input">
+                <div class="fielderr" id="e_f_tarih"></div>
+              </div>
+              <div class="uk-field">
+                <label>Bölüm <span class="req">*</span></label>
+                <select id="f_bolum" class="uk-select"><option value="">-- Seçin --</option></select>
+                <div class="fielderr" id="e_f_bolum"></div>
+              </div>
+              <div class="uk-field">
+                <label>Masraf Kodu</label>
+                <input id="f_masraf" type="text" inputmode="numeric" class="uk-input" placeholder="30263">
+                <div class="fielderr" id="e_f_masraf"></div>
+              </div>
+              <div class="uk-field">
+                <label>Malzeme Adı</label>
+                <input id="f_malzeme" type="text" class="uk-input" placeholder="Örn: Multi Tray Pini">
+              </div>
+              <div class="uk-field">
+                <label>Adet <span class="req">*</span></label>
+                <input id="f_adet" type="text" inputmode="decimal" class="uk-input" value="1" oninput="ukCalc()">
+                <div class="fielderr" id="e_f_adet"></div>
+              </div>
+              <div class="uk-field">
+                <label>Filament Türü</label>
+                <select id="f_ftur" class="uk-select" onchange="ukCalc()">
+                  <option value="">-- Seçin --</option>
+                  <option>PLA</option><option>PETG</option><option>ABS</option><option>TPU</option>
+                  <option>PC</option><option>ASA</option><option>EPA</option><option>CF15</option><option>EPC</option>
+                </select>
+                <div class="fielderr" id="e_f_ftur"></div>
+              </div>
+              <div class="uk-field">
+                <label>Filament Rengi</label>
+                <input id="f_frenk" type="text" class="uk-input" placeholder="Siyah, Beyaz…">
+              </div>
+              <div class="uk-field">
+                <label>Filament Gramajı (gr)</label>
+                <input id="f_gramaj" type="text" inputmode="decimal" class="uk-input" placeholder="0" oninput="ukCalc()">
+                <div class="fielderr" id="e_f_gramaj"></div>
+              </div>
+              <div class="uk-field">
+                <label>Çalışma Süresi (dk)</label>
+                <input id="f_sure" type="text" inputmode="decimal" class="uk-input" placeholder="0" oninput="ukCalc()">
+                <div class="fielderr" id="e_f_sure"></div>
+              </div>
+              <div class="uk-field">
+                <label>Orijinal Fiyat (USD)</label>
+                <input id="f_orijinal" type="text" inputmode="decimal" class="uk-input" placeholder="0" oninput="ukCalc()">
+                <div class="fielderr" id="e_f_orijinal"></div>
+              </div>
+              <div class="uk-field">
+                <label>Proje &amp; Çizim Bedeli (USD)</label>
+                <input id="f_proje" type="text" inputmode="decimal" class="uk-input" value="0" oninput="ukCalc()">
+                <div class="fielderr" id="e_f_proje"></div>
+              </div>
+              <div class="uk-field">
+                <label>Elektrik Ücreti (USD/saat)</label>
+                <input id="f_elektrik" type="text" inputmode="decimal" class="uk-input" value="0.09" oninput="ukCalc()">
+                <div class="fieldnote">Varsayılan 0.09 — gerekirse değiştirin.</div>
+                <div class="fielderr" id="e_f_elektrik"></div>
+              </div>
+              <div class="uk-field">
+                <label>Sınıflandırma</label>
+                <select id="f_sinif" class="uk-select">
+                  <option value="DIĞER">Diğer</option><option value="YEDEK PARÇA">Yedek Parça</option>
+                  <option value="TANITIM MALZEMESİ">Tanıtım Malzemesi</option><option value="GÖRSEL YÖNETİM">Görsel Yönetim</option>
+                  <option value="PROJE">Proje</option><option value="DENEME">Deneme</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="uk-field" style="margin-top:16px;">
+              <label>Açıklama</label>
+              <textarea id="f_aciklama" class="uk-textarea" placeholder="Ek notlar…"></textarea>
+            </div>
+
+            <div class="uk-calc" id="fCalcBox"></div>
+
+            <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;">
+              <button class="btn btn-primary" onclick="ukSubmit()"><i data-lucide="save"></i> Kayıt Oluştur</button>
+              <button class="btn btn-ghost" onclick="ukResetForm()"><i data-lucide="refresh-cw"></i> Temizle</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ KAYITLAR ══════════════ -->
+      <div id="ukPane-records" class="uk-pane">
+        <div class="uk-card">
+          <div id="ukRecAlert" class="uk-alert"></div>
+
+          <div class="uk-grid" style="margin-bottom:16px;">
+            <div class="uk-field"><label>Başlangıç</label><input id="r_bas" type="date" class="uk-input"></div>
+            <div class="uk-field"><label>Bitiş</label><input id="r_bit" type="date" class="uk-input"></div>
+            <div class="uk-field"><label>Yazıcı</label><select id="r_yazici" class="uk-select"><option value="">-- Tümü --</option></select></div>
+            <div class="uk-field"><label>Bölüm</label><select id="r_bolum" class="uk-select"><option value="">-- Tümü --</option></select></div>
+            <div class="uk-field">
+              <label>Filament Türü</label>
+              <select id="r_ftur" class="uk-select">
+                <option value="">-- Tümü --</option>
+                <option>PLA</option><option>PETG</option><option>ABS</option><option>TPU</option>
+                <option>PC</option><option>ASA</option><option>EPA</option><option>CF15</option><option>EPC</option>
+              </select>
+            </div>
+            <div class="uk-field">
+              <label>Malzeme Adı</label>
+              <input id="r_malzeme" type="text" class="uk-input" placeholder="Parça adında ara…" list="malzemeListesi"
+                     onkeydown="if(event.key==='Enter')ukLoadRecords()">
+              <datalist id="malzemeListesi"></datalist>
+              <div class="fieldnote">İçinde geçen kelimeye göre arar.</div>
+            </div>
+          </div>
+
+          <div class="uk-toolbar">
+            <span class="muted" id="ukRecCount" style="margin-right:auto;font-size:13px"></span>
+            <button class="btn btn-ghost" onclick="ukClearFilters()"><i data-lucide="x"></i> Temizle</button>
+            <button class="btn btn-primary" onclick="ukLoadRecords()"><i data-lucide="search"></i> Filtrele</button>
+          </div>
+
+          <div id="ukRecords"><p class="muted">Yükleniyor…</p></div>
+        </div>
+      </div>
+
+      <!-- ══════════════ RAPORLAR ══════════════ -->
+      <div id="ukPane-reports" class="uk-pane">
+        <div class="uk-stats" id="ukStats"></div>
+        <div class="uk-chartbox"><canvas id="ukMonthly"></canvas></div>
+        <div class="uk-chartbox"><canvas id="ukPrinter"></canvas></div>
+        <div class="uk-chartbox"><canvas id="ukDept"></canvas></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   SABİTLER — Excel "2026 YILI" sayfasıyla birebir (V:W tablosu, $/kg)
+   Elektrik ücreti ARTIK SABİT DEĞİL — formda düzenlenebilir alan.
+   Varsayılan 0.09 (Excel V13 hücresi); kullanıcı değiştirebilir.
+   Buradaki hesap yalnızca ANLIK ÖNİZLEME; kayıt sırasında nihai
+   hesabı sunucu yapar (server.js) — gönderilen elektrik değeriyle.
+   ═══════════════════════════════════════════════════════════════ */
+const FILAMENT_FIYAT = { PLA:8.3, ABS:8.3, PETG:8.3, TPU:15.97, PC:23.41, ASA:14.7, EPA:58, CF15:100, EPC:20 };
+const ELEKTRIK_SAAT_VARSAYILAN = 0.09;
+const DEPARTMANLAR = ['DTY OTOMASYON MEKANİK','DTY OTOMASYON ELEKTRİK','ARGE MERKEZİ','ENDÜSTRİ 4.0','DTY İŞLETME',
+  'DTY MAKİNE BAKIM','CP10 POY ELEKTRİK','CP8 ELYAF ELEKTRİK','CP8 MAKİNE BAKIM','İNSAN KAYNAKLARI','ZİYAN','DİĞER'];
+
+let ukCurrency = 'USD';
+let ukRate = 45.07;
+let ukBambuData = null;
+let ukSonKayitlar = [];
+const ukCharts = {};
+
+/* ═════════ API ═════════ */
+async function apiFetch(url, options = {}) {
+  const token = localStorage.getItem('token');
+  if (!token) { location.replace('/'); throw new Error('Oturum yok'); }
+  const headers = { ...(options.headers || {}), Authorization: 'Bearer ' + token };
+  if (options.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
+  const res = await fetch(url, { ...options, headers });
+  if (res.status === 401) { location.replace('/'); throw new Error('Oturum süresi doldu'); }
+  let data = null; try { data = await res.json(); } catch (e) {}
+  if (!res.ok) {
+    const err = new Error((data && (data.error || data.message)) || ('Sunucu hatası ' + res.status));
+    err.detay = (data && data.errors) || null;
+    throw err;
+  }
+  return data;
+}
+
+/* ═════════ SAYI DOĞRULAMA (harf / virgül / eksi) ═════════ */
+function parseNum(v) {
+  if (v === null || v === undefined) return null;
+  if (typeof v === 'number') return Number.isFinite(v) ? v : null;
+  let s = String(v).trim();
+  if (s === '') return null;
+  s = s.replace(/\s/g, '').replace(',', '.');
+  if (!/^-?\d*\.?\d+$/.test(s)) return null;
+  const n = parseFloat(s);
+  return Number.isFinite(n) ? n : null;
+}
+
+function alanSayi(inputId, opt) {
+  const o = opt || {};
+  const varsayilan = o.varsayilan !== undefined ? o.varsayilan : 0;
+  const etiket = o.etiket || 'Değer';
+  const hatalar = o.hatalar;
+  const el  = document.getElementById(inputId);
+  const err = document.getElementById('e_' + inputId);
+  const ham = el ? el.value : '';
+  const yaz = function (msg) { if (err) err.textContent = msg || ''; if (el) el.classList.toggle('bad', !!msg); };
+
+  if (String(ham).trim() === '') {
+    if (o.zorunlu) { yaz(etiket + ' zorunlu.'); hatalar.push(etiket + ' zorunlu.'); return varsayilan; }
+    yaz(''); return varsayilan;
+  }
+  const n = parseNum(ham);
+  if (n === null) { yaz('Sadece sayı girin.'); hatalar.push(etiket + ' sayı olmalı ("' + ham + '").'); return varsayilan; }
+  if (n < 0)      { yaz('Negatif olamaz.');    hatalar.push(etiket + ' negatif olamaz.');              return varsayilan; }
+  if (o.sifirOlamaz && n === 0) { yaz('0 olamaz.'); hatalar.push(etiket + ' 0 olamaz.');               return varsayilan; }
+  yaz(''); return n;
+}
+
+function alanMetin(selectId, opt) {
+  const o = opt || {};
+  const el  = document.getElementById(selectId);
+  const err = document.getElementById('e_' + selectId);
+  const v   = el ? String(el.value || '').trim() : '';
+  const yaz = function (msg) { if (err) err.textContent = msg || ''; if (el) el.classList.toggle('bad', !!msg); };
+  if (o.zorunlu !== false && !v) { yaz((o.etiket || 'Alan') + ' seçin.'); o.hatalar.push((o.etiket || 'Alan') + ' seçilmedi.'); return ''; }
+  yaz(''); return v;
+}
+
+/* ═════════ EXCEL FORMÜLLERİ (anlık önizleme) ═════════ */
+function excelHesapla(g) {
+  const anahtar = String(g.tur || '').trim().toUpperCase().replace(/\s+/g, '');
+  const birim = FILAMENT_FIYAT[anahtar] || 0;
+  const elektrik = (g.elektrik === null || g.elektrik === undefined || Number.isNaN(g.elektrik))
+    ? ELEKTRIK_SAAT_VARSAYILAN : g.elektrik;
+  const filament  = birim * g.gramaj / 1000;                       // J
+  const satinalma = g.adet * g.orijinal + g.proje;                 // P
+  const uretim    = filament + elektrik * (g.sure / 60);           // Q
+  return { filament: filament, satinalma: satinalma, uretim: uretim, kar: satinalma - uretim, elektrik: elektrik };  // R
+}
+
+function calcBoxHTML(h) {
+  const tl = (h.kar * ukRate).toLocaleString('tr-TR', { maximumFractionDigits: 2 });
+  const karStil = h.kar < 0 ? ' style="color:#ffd7d3"' : '';
+  const elekTxt = '$' + h.elektrik.toFixed(2) + '/saat';
+  return '' +
+    '<div class="row"><span>Gramaja Göre Maliyet <span class="formula">J = $/kg × gr ÷ 1000</span></span><strong>$' + h.filament.toFixed(4) + '</strong></div>' +
+    '<div class="row"><span>Ön Görülen Satınalma <span class="formula">P = adet × fiyat + proje</span></span><strong>$' + h.satinalma.toFixed(2) + '</strong></div>' +
+    '<div class="row"><span>Filament + Yazıcı Maliyeti <span class="formula">Q = J + ' + elekTxt + ' × (dk ÷ 60)</span></span><strong>$' + h.uretim.toFixed(4) + '</strong></div>' +
+    '<div class="row total"><span>TOPLAM KÂR <span class="formula">R = P − Q</span></span><strong' + karStil + '>$' + h.kar.toFixed(2) +
+    ' &nbsp;<span style="font-weight:500;opacity:.8">₺' + tl + '</span></strong></div>';
+}
+
+/* ═════════ KABUK ═════════ */
+function ukToggleTheme() {
+  const el = document.documentElement;
+  const next = el.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  el.setAttribute('data-theme', next);
+  try { localStorage.setItem('theme', next); } catch (e) {}
+  const t = document.getElementById('themeText'); if (t) t.textContent = next === 'dark' ? 'Açık Mod' : 'Koyu Mod';
+  const i = document.getElementById('themeIcon'); if (i) { i.setAttribute('data-lucide', next === 'dark' ? 'sun' : 'moon'); if (window.lucide) lucide.createIcons(); }
+
+  // Raporlar sekmesi açıksa grafikleri yeni tema renkleriyle yeniden çiz.
+  try {
+    const reportsPane = document.getElementById('ukPane-reports');
+    if (reportsPane && reportsPane.classList.contains('active')) {
+      setTimeout(() => { ukLoadReports(); }, 60);
+    }
+  } catch (e) {}
+}
+function ukLogout() {
+  try { localStorage.removeItem('token'); localStorage.removeItem('refreshToken'); localStorage.removeItem('user'); } catch (e) {}
+  location.replace('/');
+}
+function ukToggleSidebar() { const s = document.querySelector('.sidebar'); if (s) s.classList.toggle('collapsed'); }
+function ukToggleNav()     { const s = document.querySelector('.sidebar'); if (s) s.classList.toggle('open'); }
+
+function ukFillUserChip() {
+  try {
+    const u = JSON.parse(localStorage.getItem('user') || '{}');
+    if (u && u.username) {
+      document.getElementById('userName').textContent = u.username;
+      document.getElementById('userRole').textContent = u.role || '';
+      document.getElementById('userAvatar').textContent = (u.username[0] || 'A').toUpperCase();
+    }
+  } catch (e) {}
+}
+function ukSwitch(name, btn) {
+  const panes = document.querySelectorAll('.uk-pane');
+  for (let i = 0; i < panes.length; i++) panes[i].classList.remove('active');
+  const tabs = document.querySelectorAll('.uk-tab');
+  for (let i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+  document.getElementById('ukPane-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (name === 'records') ukLoadRecords();
+  if (name === 'reports') ukLoadReports();
+}
+function ukSubSwitch(name, btn) {
+  const panes = document.querySelectorAll('.sub-pane');
+  for (let i = 0; i < panes.length; i++) panes[i].classList.remove('active');
+  const tabs = document.querySelectorAll('.sub-tab');
+  for (let i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+  document.getElementById('ukSubPane-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+function ukAlert(msg, type, elemId, liste) {
+  const el = document.getElementById(elemId); if (!el) return;
+  el.className = 'uk-alert ' + type;
+  if (liste && liste.length) {
+    el.innerHTML = '<div>' + msg + '</div><ul>' + liste.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul>';
+  } else {
+    el.textContent = msg;
+  }
+  if (type === 'ok') setTimeout(function () { el.className = 'uk-alert'; }, 6000);
+}
+function ukAlertGizle(id) { const el = document.getElementById(id); if (el) el.className = 'uk-alert'; }
+
+/* ═════════ LİSTELER ═════════ */
+function ukInitDate() { document.getElementById('f_tarih').value = new Date().toISOString().split('T')[0]; }
+
+async function ukLoadPrinters() {
+  try {
+    const data = await apiFetch('/api/printers');
+    const list = [];
+    ['ultimaker','bambu','raise3d','guider','zaxe'].forEach(function (k) {
+      (data[k] || []).forEach(function (p) { list.push({ id: p.id, name: p.name || p.id, type: k }); });
+    });
+    [['f_yazici', false], ['r_yazici', false], ['b_yazici', true]].forEach(function (pair) {
+      const sel = document.getElementById(pair[0]); if (!sel) return;
+      list.forEach(function (p) {
+        if (pair[1] && p.type !== 'bambu') return;
+        const o = document.createElement('option'); o.value = p.id; o.textContent = p.name; sel.appendChild(o);
+      });
+    });
+  } catch (e) { console.error('Yazıcı listesi:', e.message); }
+}
+function ukFillDepartments() {
+  ['f_bolum','r_bolum','b_bolum'].forEach(function (id) {
+    const sel = document.getElementById(id); if (!sel) return;
+    DEPARTMANLAR.forEach(function (d) { const o = document.createElement('option'); o.value = d; o.textContent = d; sel.appendChild(o); });
+  });
+}
+async function ukLoadFilterOptions() {
+  try {
+    const d = await apiFetch('/api/production/filter-options');
+    const dl = document.getElementById('malzemeListesi');
+    if (dl) {
+      dl.innerHTML = '';
+      (d.malzemeIsimleri || []).forEach(function (m) { const o = document.createElement('option'); o.value = m; dl.appendChild(o); });
+    }
+  } catch (e) { /* opsiyonel */ }
+}
+
+/* ═════════ BAMBU ═════════ */
+async function ukLoadBambuData() {
+  const printerId = document.getElementById('b_yazici').value;
+  ukAlertGizle('ukBambuAlert'); ukAlertGizle('ukBambuWarn');
+  if (!printerId) { document.getElementById('ukBambuFormContainer').style.display = 'none'; return; }
+
+  try {
+    const res = await apiFetch('/api/production/from-bambu/' + encodeURIComponent(printerId));
+    if (!res.ok) throw new Error(res.error || 'Veri alınamadı');
+    const d = res.data; ukBambuData = d;
+
+    document.getElementById('b_tarih').value    = d.tarih || new Date().toISOString().split('T')[0];
+    document.getElementById('b_malzeme').value  = d.malzeme_ismi || '';
+    document.getElementById('b_frenk').value    = d.filament_rengi || '';
+    document.getElementById('b_aciklama').value = d.aciklama || '';
+    document.getElementById('b_adet').value     = '1';
+    document.getElementById('b_proje').value    = '0';
+    document.getElementById('b_orijinal').value = '';
+    document.getElementById('b_masraf').value   = '';
+    document.getElementById('b_bolum').value    = '';
+
+    // Filament türü — listede yoksa ekle + güvenilirlik notu
+    const ftur = document.getElementById('b_ftur');
+    const ftNot = document.getElementById('n_b_ftur');
+    if (d.filament_turu) {
+      let varMi = false;
+      for (let i = 0; i < ftur.options.length; i++) if (ftur.options[i].value === d.filament_turu) varMi = true;
+      if (!varMi) { const o = document.createElement('option'); o.value = d.filament_turu; o.textContent = d.filament_turu + ' (yazıcıdan)'; ftur.appendChild(o); }
+      ftur.value = d.filament_turu;
+    } else { ftur.value = ''; }
+
+    if (d._filamentGuvenilir === true) {
+      ftNot.className = 'fieldnote'; ftNot.textContent = '✓ Baskı sırasında izlendi — güvenilir.';
+    } else {
+      ftNot.className = 'fieldnote warn';
+      ftNot.textContent = '⚠ Baskı sırasında izlenemedi — bu değer yanlış olabilir, kontrol edin.';
+    }
+
+    // Gramaj — yazıcıdan gelmiyorsa boş bırak ve uyar
+    const gEl = document.getElementById('b_gramaj');
+    const gNot = document.getElementById('n_b_gramaj');
+    if (d.filament_gramaji !== null && d.filament_gramaji !== undefined && Number(d.filament_gramaji) > 0) {
+      gEl.value = d.filament_gramaji; gEl.classList.add('auto');
+      gNot.className = 'fieldnote'; gNot.textContent = 'Yazıcıdan okundu.';
+    } else {
+      gEl.value = ''; gEl.classList.remove('auto');
+      gNot.className = 'fieldnote warn';
+      gNot.textContent = '⚠ Bambu bu veriyi LAN üzerinden yayınlamıyor — dilimleyicideki (Bambu Studio) gramajı elle girin.';
+    }
+
+    // Süre — kaynağı açıkça yazılır (yüzde bilgisiyle birlikte)
+    const sEl = document.getElementById('b_sure');
+    const sNot = document.getElementById('n_b_sure');
+    sEl.value = (d.calisma_suresi === null || d.calisma_suresi === undefined) ? '' : d.calisma_suresi;
+    const yuzdeEk = (d._yuzde !== null && d._yuzde !== undefined) ? ' (şu an %' + d._yuzde + ')' : '';
+    const kaynaklar = {
+      'olculen':      ['fieldnote',      '✓ Baskı başından sonuna ölçüldü — kesin süre.'],
+      'devam-ediyor': ['fieldnote warn', '⚠ Baskı hâlâ sürüyor' + yuzdeEk + ' — şu ana kadar geçen süre. Bitince tekrar çekin.'],
+      'tahmin':       ['fieldnote warn', '⚠ Yüzde + kalan süreden tahmin edildi' + yuzdeEk + ' — kesin değil, kontrol edin.'],
+      'yok':          ['fieldnote warn', '⚠ Süre ölçülemedi — elle girin.']
+    };
+    // Bilinmeyen/eksik kaynak: sessizce "—" göstermek yerine açıkça uyar (sessiz belirsizlik bırakma)
+    const k = kaynaklar[d._sureKaynak] || ['fieldnote warn', '⚠ Süre kaynağı belirlenemedi — değeri mutlaka kontrol edin.'];
+    sNot.className = k[0]; sNot.textContent = k[1];
+
+    // Baskı henüz bitmemişse üstte GÖZE ÇARPAN bir uyarı — sadece alt not değil
+    if (d._tamamlandi === false) {
+      ukAlert('⏳ Bu baskı henüz tamamlanmadı — veriler kesinleşmemiş olabilir.', 'warn', 'ukBambuWarn', d._uyarilar);
+    } else if (d._uyarilar && d._uyarilar.length) {
+      ukAlert('Dikkat edilmesi gerekenler:', 'warn', 'ukBambuWarn', d._uyarilar);
+    } else {
+      ukAlertGizle('ukBambuWarn');
+    }
+
+    document.getElementById('ukBambuFormContainer').style.display = 'block';
+    ukBambuCalc();
+    if (window.lucide) lucide.createIcons();
+  } catch (e) {
+    document.getElementById('ukBambuFormContainer').style.display = 'none';
+    ukAlert('Bambu verisi çekilemedi: ' + e.message, 'err', 'ukBambuAlert');
+  }
+}
+
+function ukBambuTopla() {
+  const hatalar = [];
+  const v = {
+    tarih:          document.getElementById('b_tarih').value,
+    yazici_no:      alanMetin('b_yazici', { etiket: 'Yazıcı', hatalar: hatalar }),
+    bolum:          alanMetin('b_bolum',  { etiket: 'Bölüm',  hatalar: hatalar }),
+    filament_turu:  alanMetin('b_ftur',   { etiket: 'Filament türü', hatalar: hatalar }),
+    malzeme_ismi:   document.getElementById('b_malzeme').value,
+    filament_rengi: document.getElementById('b_frenk').value,
+    siniflandirma:  document.getElementById('b_sinif').value,
+    aciklama:       document.getElementById('b_aciklama').value,
+    masraf_kodu:    document.getElementById('b_masraf').value,
+    adet:             alanSayi('b_adet',     { varsayilan: 1, etiket: 'Adet', zorunlu: true, sifirOlamaz: true, hatalar: hatalar }),
+    filament_gramaji: alanSayi('b_gramaj',   { varsayilan: 0, etiket: 'Filament gramajı', zorunlu: true, hatalar: hatalar }),
+    calisma_suresi:   alanSayi('b_sure',     { varsayilan: 0, etiket: 'Çalışma süresi', zorunlu: true, hatalar: hatalar }),
+    orijinal_fiyati:  alanSayi('b_orijinal', { varsayilan: 0, etiket: 'Orijinal fiyat', hatalar: hatalar }),
+    proje_bedeli:     alanSayi('b_proje',    { varsayilan: 0, etiket: 'Proje bedeli', hatalar: hatalar }),
+    elektrik_saat_usd: alanSayi('b_elektrik', { varsayilan: ELEKTRIK_SAAT_VARSAYILAN, etiket: 'Elektrik ücreti', hatalar: hatalar })
+  };
+  const mk = v.masraf_kodu, mkErr = document.getElementById('e_b_masraf');
+  if (String(mk).trim() !== '' && parseNum(mk) === null) { mkErr.textContent = 'Sadece sayı girin.'; hatalar.push('Masraf kodu sayı olmalı.'); }
+  else { mkErr.textContent = ''; }
+  const te = document.getElementById('e_b_tarih');
+  if (!v.tarih) { te.textContent = 'Tarih zorunlu.'; hatalar.push('Tarih zorunlu.'); } else { te.textContent = ''; }
+  return { v: v, hatalar: hatalar };
+}
+
+function ukBambuCalc() {
+  const r = ukBambuTopla();
+  const h = excelHesapla({ tur: r.v.filament_turu, gramaj: r.v.filament_gramaji, adet: r.v.adet,
+                           orijinal: r.v.orijinal_fiyati, proje: r.v.proje_bedeli, sure: r.v.calisma_suresi,
+                           elektrik: r.v.elektrik_saat_usd });
+  document.getElementById('bCalcBox').innerHTML = calcBoxHTML(h);
+}
+
+async function ukBambuSubmit() {
+  const r = ukBambuTopla();
+  if (r.hatalar.length) { ukAlert('Kayıt oluşturulamadı:', 'err', 'ukBambuAlert', r.hatalar); return; }
+  try {
+    const res = await apiFetch('/api/production/record', { method: 'POST', body: JSON.stringify(r.v) });
+    const h = res.hesaplanan || {};
+    ukAlert('✓ Kayıt oluşturuldu (#' + res.id + ') — Toplam kâr: $' + Number(h.toplam_kar).toFixed(2),
+            'ok', 'ukBambuAlert', res.warnings);
+    ukBambuReset();
+    ukLoadFilterOptions();
+  } catch (e) {
+    ukAlert('Hata: ' + e.message, 'err', 'ukBambuAlert', e.detay);
+  }
+}
+
+function ukBambuReset() {
+  ['b_yazici','b_bolum','b_masraf','b_orijinal','b_aciklama','b_malzeme','b_frenk','b_gramaj','b_sure','b_ftur'].forEach(function (id) {
+    const el = document.getElementById(id); if (el) { el.value = ''; el.classList.remove('bad'); }
+  });
+  document.getElementById('b_adet').value = '1';
+  document.getElementById('b_proje').value = '0';
+  document.getElementById('b_elektrik').value = String(ELEKTRIK_SAAT_VARSAYILAN);
+  document.getElementById('b_elektrik').classList.remove('bad');
+  document.getElementById('b_sinif').value = 'DIĞER';
+  const errs = document.querySelectorAll('#ukSubPane-bambu .fielderr');
+  for (let i = 0; i < errs.length; i++) errs[i].textContent = '';
+  document.getElementById('ukBambuFormContainer').style.display = 'none';
+  ukAlertGizle('ukBambuWarn');
+  ukBambuData = null;
+}
+
+/* ═════════ ELLE GİRİŞ ═════════ */
+function ukTopla() {
+  const hatalar = [];
+  const v = {
+    tarih:          document.getElementById('f_tarih').value,
+    yazici_no:      alanMetin('f_yazici', { etiket: 'Yazıcı', hatalar: hatalar }),
+    bolum:          alanMetin('f_bolum',  { etiket: 'Bölüm',  hatalar: hatalar }),
+    filament_turu:  document.getElementById('f_ftur').value,
+    malzeme_ismi:   document.getElementById('f_malzeme').value,
+    filament_rengi: document.getElementById('f_frenk').value,
+    siniflandirma:  document.getElementById('f_sinif').value,
+    aciklama:       document.getElementById('f_aciklama').value,
+    masraf_kodu:    document.getElementById('f_masraf').value,
+    adet:             alanSayi('f_adet',     { varsayilan: 1, etiket: 'Adet', zorunlu: true, sifirOlamaz: true, hatalar: hatalar }),
+    filament_gramaji: alanSayi('f_gramaj',   { varsayilan: 0, etiket: 'Filament gramajı', hatalar: hatalar }),
+    calisma_suresi:   alanSayi('f_sure',     { varsayilan: 0, etiket: 'Çalışma süresi', hatalar: hatalar }),
+    orijinal_fiyati:  alanSayi('f_orijinal', { varsayilan: 0, etiket: 'Orijinal fiyat', hatalar: hatalar }),
+    proje_bedeli:     alanSayi('f_proje',    { varsayilan: 0, etiket: 'Proje bedeli', hatalar: hatalar }),
+    elektrik_saat_usd: alanSayi('f_elektrik', { varsayilan: ELEKTRIK_SAAT_VARSAYILAN, etiket: 'Elektrik ücreti', hatalar: hatalar })
+  };
+  const mk = v.masraf_kodu, mkErr = document.getElementById('e_f_masraf');
+  if (String(mk).trim() !== '' && parseNum(mk) === null) { mkErr.textContent = 'Sadece sayı girin.'; hatalar.push('Masraf kodu sayı olmalı.'); }
+  else { mkErr.textContent = ''; }
+
+  // Gramaj var ama tür yoksa Excel'de VLOOKUP #YOK verirdi
+  const fturErr = document.getElementById('e_f_ftur');
+  if (v.filament_gramaji > 0 && !v.filament_turu) {
+    fturErr.textContent = 'Gramaj girdiniz — tür seçin.'; hatalar.push('Gramaj girildi ama filament türü seçilmedi.');
+  } else { fturErr.textContent = ''; }
+
+  const te = document.getElementById('e_f_tarih');
+  if (!v.tarih) { te.textContent = 'Tarih zorunlu.'; hatalar.push('Tarih zorunlu.'); } else { te.textContent = ''; }
+  return { v: v, hatalar: hatalar };
+}
+
+function ukCalc() {
+  const r = ukTopla();
+  const h = excelHesapla({ tur: r.v.filament_turu, gramaj: r.v.filament_gramaji, adet: r.v.adet,
+                           orijinal: r.v.orijinal_fiyati, proje: r.v.proje_bedeli, sure: r.v.calisma_suresi,
+                           elektrik: r.v.elektrik_saat_usd });
+  document.getElementById('fCalcBox').innerHTML = calcBoxHTML(h);
+}
+
+async function ukSubmit() {
+  const r = ukTopla();
+  if (r.hatalar.length) { ukAlert('Kayıt oluşturulamadı:', 'err', 'ukFormAlert', r.hatalar); return; }
+  try {
+    const res = await apiFetch('/api/production/record', { method: 'POST', body: JSON.stringify(r.v) });
+    const h = res.hesaplanan || {};
+    ukAlert('✓ Kayıt oluşturuldu (#' + res.id + ') — Toplam kâr: $' + Number(h.toplam_kar).toFixed(2),
+            'ok', 'ukFormAlert', res.warnings);
+    ukResetForm();
+    ukLoadFilterOptions();
+  } catch (e) {
+    ukAlert('Hata: ' + e.message, 'err', 'ukFormAlert', e.detay);
+  }
+}
+
+function ukResetForm() {
+  ['f_yazici','f_bolum','f_masraf','f_malzeme','f_frenk','f_gramaj','f_sure','f_orijinal','f_ftur','f_aciklama'].forEach(function (id) {
+    const el = document.getElementById(id); if (el) { el.value = ''; el.classList.remove('bad'); }
+  });
+  document.getElementById('f_adet').value = '1';
+  document.getElementById('f_proje').value = '0';
+  document.getElementById('f_elektrik').value = String(ELEKTRIK_SAAT_VARSAYILAN);
+  document.getElementById('f_elektrik').classList.remove('bad');
+  document.getElementById('f_sinif').value = 'DIĞER';
+  const errs = document.querySelectorAll('#ukSubPane-manual .fielderr');
+  for (let i = 0; i < errs.length; i++) errs[i].textContent = '';
+  ukInitDate(); ukCalc();
+}
+
+/* ═════════ KAYITLAR + SİLME ═════════ */
+function ukFiltreQuery() {
+  const q = new URLSearchParams();
+  const al = function (id) { const e = document.getElementById(id); return e ? String(e.value || '').trim() : ''; };
+  if (al('r_bas'))     q.append('tarih_baslangic', al('r_bas'));
+  if (al('r_bit'))     q.append('tarih_bitis',     al('r_bit'));
+  if (al('r_yazici'))  q.append('yazici_no',       al('r_yazici'));
+  if (al('r_bolum'))   q.append('bolum',           al('r_bolum'));
+  if (al('r_ftur'))    q.append('filament_turu',   al('r_ftur'));
+  if (al('r_malzeme')) q.append('malzeme_ismi',    al('r_malzeme'));
+  return q;
+}
+function ukClearFilters() {
+  ['r_bas','r_bit','r_yazici','r_bolum','r_ftur','r_malzeme'].forEach(function (id) {
+    const e = document.getElementById(id); if (e) e.value = '';
+  });
+  ukLoadRecords();
+}
+
+async function ukLoadRecords() {
+  const box = document.getElementById('ukRecords');
+  box.innerHTML = '<p class="muted">Yükleniyor…</p>';
+  try {
+    const data = await apiFetch('/api/production/records?' + ukFiltreQuery().toString());
+    const recs = data.records || [];
+    ukSonKayitlar = recs;
+    document.getElementById('ukRecCount').textContent = recs.length + ' kayıt';
+
+    if (!recs.length) { box.innerHTML = '<p class="muted">Filtreye uyan kayıt yok.</p>'; return; }
+
+    const esc = function (s) {
+      return String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+      });
+    };
+    const par = function (n) {
+      const v = Number(n) || 0;
+      return ukCurrency === 'USD' ? '$' + v.toFixed(2)
+                                  : '₺' + (v * ukRate).toLocaleString('tr-TR', { maximumFractionDigits: 0 });
+    };
+
+    let h = '<div class="uk-table-wrap"><table class="uk-table"><thead><tr>' +
+      '<th>Tarih</th><th>Yazıcı</th><th>Bölüm</th><th>Malzeme</th><th>Filament</th>' +
+      '<th style="text-align:right">Gramaj</th><th style="text-align:right">Süre</th>' +
+      '<th style="text-align:right">Adet</th><th style="text-align:right">Kâr</th><th></th></tr></thead><tbody>';
+
+    recs.forEach(function (r) {
+      const kar = Number(r.toplam_kar) || 0;
+      h += '<tr>' +
+        '<td>' + esc(r.tarih) + '</td>' +
+        '<td>' + esc(r.yazici_no) + '</td>' +
+        '<td>' + esc(r.bolum) + '</td>' +
+        '<td>' + (r.malzeme_ismi ? esc(r.malzeme_ismi) : '<span class="muted">-</span>') + '</td>' +
+        '<td>' + (r.filament_turu ? esc(r.filament_turu) : '<span class="muted">-</span>') +
+                 (r.filament_rengi ? ' · ' + esc(r.filament_rengi) : '') + '</td>' +
+        '<td class="num">' + (Number(r.filament_gramaji) || 0) + ' gr</td>' +
+        '<td class="num">' + (Number(r.calisma_suresi) || 0) + ' dk</td>' +
+        '<td class="num">' + (Number(r.adet) || 0) + '</td>' +
+        '<td class="num ' + (kar < 0 ? 'kar-neg' : 'kar-pos') + '">' + par(kar) + '</td>' +
+        '<td><button class="del-btn" onclick="ukDeleteRecord(' + r.id + ', this)" title="Kaydı sil">' +
+            '<i data-lucide="trash-2" style="width:14px;height:14px"></i> Sil</button></td>' +
+        '</tr>';
+    });
+    h += '</tbody></table></div>';
+    box.innerHTML = h;
+    if (window.lucide) lucide.createIcons();
+  } catch (e) {
+    box.innerHTML = '<p style="color:var(--err,#e53935)">Hata: ' + e.message + '</p>';
+  }
+}
+
+async function ukDeleteRecord(id, btn) {
+  let ozet = '';
+  for (let i = 0; i < ukSonKayitlar.length; i++) {
+    if (ukSonKayitlar[i].id === id) {
+      const r = ukSonKayitlar[i];
+      ozet = '\n\n' + r.tarih + ' · ' + r.yazici_no + ' · ' + (r.malzeme_ismi || 'malzeme adı yok');
+      break;
+    }
+  }
+  if (!confirm('#' + id + ' numaralı üretim kaydı silinsin mi?' + ozet +
+               '\n\nBu işlem geri alınamaz; raporlardan da çıkacaktır.')) return;
+
+  if (btn) { btn.disabled = true; btn.textContent = 'Siliniyor…'; }
+  try {
+    await apiFetch('/api/production/record/' + id, { method: 'DELETE' });
+    ukAlert('✓ #' + id + ' numaralı kayıt silindi.', 'ok', 'ukRecAlert');
+    await ukLoadRecords();
+    await ukLoadReports();        // raporlar da güncellensin
+    ukLoadFilterOptions();
+  } catch (e) {
+    ukAlert('Silinemedi: ' + e.message, 'err', 'ukRecAlert');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<i data-lucide="trash-2" style="width:14px;height:14px"></i> Sil';
+      if (window.lucide) lucide.createIcons();
+    }
+  }
+}
+
+/* ═════════ RAPORLAR ═════════ */
+function ukToggleCurrency() {
+  ukCurrency = ukCurrency === 'USD' ? 'TL' : 'USD';
+  document.getElementById('ukCurrencyBtn').textContent = ukCurrency === 'USD' ? '$ USD' : '₺ TL';
+  ukLoadReports();
+  if (document.getElementById('ukPane-records').classList.contains('active')) ukLoadRecords();
+}
+
+async function ukLoadReports() {
+  try {
+    const results = await Promise.all([
+      apiFetch('/api/production/monthly'),
+      apiFetch('/api/production/by-printer'),
+      apiFetch('/api/production/by-department')
+    ]);
+    const monthly = results[0], printer = results[1], dept = results[2];
+    ukRate = parseFloat(monthly.kur) || ukRate;
+
+    let kayit = 0, adet = 0, saat = 0, karUSD = 0, karTL = 0;
+    (monthly.aylarOzet || []).forEach(function (m) {
+      kayit  += m.kayitSayisi || 0;
+      adet   += m.uretimAdet || 0;
+      saat   += parseFloat(m.calismaSaati) || 0;
+      karUSD += (m.maliyet ? parseFloat(m.maliyet.karUSD) : 0) || 0;
+      karTL  += (m.maliyet ? parseFloat(m.maliyet.karTL)  : 0) || 0;
+    });
+
+    const money = function (usd, tl) {
+      return ukCurrency === 'USD'
+        ? '$' + Number(usd).toLocaleString('tr-TR', { maximumFractionDigits: 2 })
+        : '₺' + Number(tl).toLocaleString('tr-TR',  { maximumFractionDigits: 0 });
+    };
+    const stat = function (t, v, u) {
+      return '<div class="uk-stat"><h4>' + t + '</h4><div class="v">' + v + '</div><div class="u">' + u + '</div></div>';
+    };
+
+    document.getElementById('ukStats').innerHTML =
+      stat('Toplam Kayıt',   kayit.toLocaleString('tr-TR'), 'işlem') +
+      stat('Üretim Miktarı', adet.toLocaleString('tr-TR'),  'parça') +
+      stat('Çalışma Saati',  saat.toFixed(1),               'saat')  +
+      stat('Toplam Kâr',     money(karUSD, karTL),          ukCurrency);
+
+    const mLabels = (monthly.aylarOzet || []).map(function (m) { return m.ay; });
+    const mData   = (monthly.aylarOzet || []).map(function (m) {
+      return ukCurrency === 'USD' ? (parseFloat(m.maliyet ? m.maliyet.karUSD : 0) || 0)
+                                  : (parseFloat(m.maliyet ? m.maliyet.karTL  : 0) || 0);
+    });
+    drawChart('ukMonthly', 'bar', mLabels, [{
+      label: 'Aylık Kâr (' + ukCurrency + ')',
+      data: mData,
+      backgroundColor: mData.map(function (v) { return v < 0 ? 'rgba(229,57,53,.6)' : 'rgba(99,102,241,.65)'; }),
+      borderColor:     mData.map(function (v) { return v < 0 ? 'rgb(229,57,53)'     : 'rgb(99,102,241)'; }),
+      borderWidth: 2, borderRadius: 6
+    }]);
+
+    const p10 = (printer.yaziciOzeti || []).slice(0, 10);
+    drawChart('ukPrinter', 'doughnut',
+      p10.map(function (p) { return p.yazici; }),
+      [{ data: p10.map(function (p) { return parseFloat(p.calismaSaati) || 0; }),
+         backgroundColor: ['#6366f1','#8b5cf6','#ec4899','#06b6d4','#22c55e','#f59e0b','#ef4444','#14b8a6','#a855f7','#3b82f6'] }],
+      'Yazıcı Bazlı Çalışma Saati');
+
+    const d10 = (dept.bolumOzeti || []).slice(0, 10);
+    drawChart('ukDept', 'bar',
+      d10.map(function (d) { return d.bolum; }),
+      [{ label: 'Üretim (adet)', data: d10.map(function (d) { return d.uretimAdet || 0; }),
+         backgroundColor: 'rgba(139,92,246,.65)', borderColor: 'rgb(139,92,246)', borderWidth: 2, borderRadius: 6 }],
+      null, true);
+  } catch (e) {
+    console.error('Rapor:', e.message);
+    document.getElementById('ukStats').innerHTML =
+      '<div class="uk-stat"><h4>Hata</h4><div class="v" style="font-size:15px;color:var(--err,#e53935)">' + e.message + '</div></div>';
+  }
+}
+
+function drawChart(canvasId, type, labels, datasets, title, horizontal) {
+  const cv = document.getElementById(canvasId); if (!cv) return;
+  if (ukCharts[canvasId]) ukCharts[canvasId].destroy();
+
+  // Tema-duyarlı renkler: dark modda eksen/etiket/başlık yazıları koyu zeminde
+  // kaybolmasın diye metin ve ızgara renklerini temaya göre belirliyoruz.
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const txt  = isDark ? '#f1f5f9' : '#0f172a';
+  const grid = isDark ? '#1e293b' : '#e2e8f0';
+
+  const opts = {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: type === 'doughnut', position: 'right', labels: { color: txt } },
+      title: { display: !!title, text: title || '', color: txt }
+    }
+  };
+  if (type === 'bar') {
+    opts.scales = {
+      x: { beginAtZero: true, ticks: { color: txt }, grid: { color: grid } },
+      y: { beginAtZero: true, ticks: { color: txt }, grid: { color: grid } }
+    };
+    if (horizontal) opts.indexAxis = 'y';
+  }
+  ukCharts[canvasId] = new Chart(cv.getContext('2d'), { type: type, data: { labels: labels, datasets: datasets }, options: opts });
+}
+
+/* ═════════ EXCEL ═════════ */
+async function ukExportExcel() {
+  try {
+    const q = ukFiltreQuery();
+    q.append('format', 'all');
+    q.append('year', new Date().getFullYear());
+    const res = await fetch('/api/production/export?' + q.toString(), {
+      headers: { Authorization: 'Bearer ' + localStorage.getItem('token') }
+    });
+    if (!res.ok) {
+      let msg = 'Export hatası (' + res.status + ')';
+      try { const j = await res.json(); if (j && j.error) msg = j.error; } catch (e) {}
+      throw new Error(msg);
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'uretim_kayitlari_' + new Date().toISOString().split('T')[0] + '.xlsx';
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    alert('Excel indirilemedi: ' + e.message);
+  }
+}
+
+/* ═════════ BAŞLAT ═════════ */
+window.addEventListener('DOMContentLoaded', async function () {
+  ukFillUserChip();
+  const th = document.getElementById('themeText');
+  if (th) th.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? 'Açık Mod' : 'Koyu Mod';
+  const ti = document.getElementById('themeIcon');
+  if (ti && document.documentElement.getAttribute('data-theme') === 'dark') ti.setAttribute('data-lucide', 'sun');
+
+  ukInitDate();
+  ukFillDepartments();
+  await ukLoadPrinters();
+  ukLoadFilterOptions();
+  ukCalc();
+  ukLoadReports();
+  if (window.lucide) lucide.createIcons();
+});
+</script>
+
+</body>
+</html>

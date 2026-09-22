@@ -1,0 +1,149 @@
+{
+  "ultimaker": [
+    {
+      "id": "1 Nolu Ultimaker",
+      "type": "ultimaker",
+      "ip": "${ULTIMAKER_1_IP}",
+      "auth": {
+        "username": "${ULTIMAKER_1_USER}",
+        "password": "${ULTIMAKER_1_PASS}"
+      }
+    },
+    {
+      "id": "4 Nolu Ultimaker",
+      "type": "ultimaker",
+      "ip": "${ULTIMAKER_4_IP}",
+      "auth": {
+        "username": "${ULTIMAKER_4_USER}",
+        "password": "${ULTIMAKER_4_PASS}"
+      }
+    }
+  ],
+  "bambu": [
+    {
+      "id": "8 Numara Bambu",
+      "type": "bambu",
+      "ip": "${BAMBU_8_IP}",
+      "accessCode": "${BAMBU_8_CODE}"
+    },
+    {
+      "id": "9 Numara Bambu",
+      "type": "bambu",
+      "ip": "${BAMBU_9_IP}",
+      "accessCode": "${BAMBU_9_CODE}"
+    },
+    {
+      "id": "10 Numara Bambu",
+      "type": "bambu",
+      "ip": "${BAMBU_10_IP}",
+      "accessCode": "${BAMBU_10_CODE}"
+    },
+    {
+      "id": "11 Numara Bambu",
+      "type": "bambu",
+      "ip": "${BAMBU_11_IP}",
+      "accessCode": "${BAMBU_11_CODE}"
+    },
+    {
+      "id": "12 Numara Bambu",
+      "type": "bambu",
+      "ip": "${BAMBU_12_IP}",
+      "accessCode": "${BAMBU_12_CODE}"
+    },
+    {
+      "id": "18 Numara Bambu",
+      "type": "bambu",
+      "ip": "${BAMBU_18_IP}",
+      "accessCode": "${BAMBU_18_CODE}"
+    },
+    {
+      "id": "19 Numara Bambu",
+      "type": "bambu",
+      "ip": "${BAMBU_19_IP}",
+      "accessCode": "${BAMBU_19_CODE}"
+    },
+    {
+      "id": "21 Numara Bambu",
+      "type": "bambu",
+      "ip": "${BAMBU_21_IP}",
+      "accessCode": "${BAMBU_21_CODE}"
+    },
+    {
+      "id": "22 Numara Bambu",
+      "type": "bambu",
+      "ip": "${BAMBU_22_IP}",
+      "accessCode": "${BAMBU_22_CODE}"
+    }
+  ],
+  "raise3d": [
+    {
+      "id": "2 Nolu Raise3D Pro3",
+      "type": "raise3d",
+      "ip": "${RAISE3D_2_IP}",
+      "apiToken": "${RAISE3D_2_TOKEN}"
+    },
+    {
+      "id": "5 Nolu Raise3D Pro3",
+      "type": "raise3d",
+      "ip": "${RAISE3D_5_IP}",
+      "apiToken": "${RAISE3D_5_TOKEN}"
+    },
+    {
+      "id": "6 Nolu Raise3D Pro3",
+      "type": "raise3d",
+      "ip": "${RAISE3D_6_IP}",
+      "apiToken": "${RAISE3D_6_TOKEN}"
+    },
+    {
+      "id": "7 Nolu Raise3D Pro3",
+      "type": "raise3d",
+      "ip": "${RAISE3D_7_IP}",
+      "apiToken": "${RAISE3D_7_TOKEN}"
+    }
+  ],
+  "guider": [
+    {
+      "id": "13 Nolu Guider 2S",
+      "type": "guider",
+      "ip": "${GUIDER_13_IP}"
+    }
+  ],
+  "zaxe": [
+    {
+      "id": "14 Nolu ZAXE X4",
+      "type": "zaxe",
+      "ip": "${ZAXE_14_IP}",
+      "auth": {
+        "username": "${ZAXE_14_USER}",
+        "password": "${ZAXE_14_PASS}"
+      }
+    },
+    {
+      "id": "15 Nolu ZAXE X4",
+      "type": "zaxe",
+      "ip": "${ZAXE_15_IP}",
+      "auth": {
+        "username": "${ZAXE_15_USER}",
+        "password": "${ZAXE_15_PASS}"
+      }
+    },
+    {
+      "id": "16 Nolu ZAXE X4",
+      "type": "zaxe",
+      "ip": "${ZAXE_16_IP}",
+      "auth": {
+        "username": "${ZAXE_16_USER}",
+        "password": "${ZAXE_16_PASS}"
+      }
+    },
+    {
+      "id": "17 Nolu ZAXE X4",
+      "type": "zaxe",
+      "ip": "${ZAXE_17_IP}",
+      "auth": {
+        "username": "${ZAXE_17_USER}",
+        "password": "${ZAXE_17_PASS}"
+      }
+    }
+  ]
+}

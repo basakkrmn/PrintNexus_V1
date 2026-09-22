@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Environment / secrets
+.env
+
+# Database
+*.db
+
+# Build / distribution
+dist/
+*.exe
+
+# Python
+__pycache__/
+*.pyc
+
+# Logs
+*.log
+
+# Uploaded files
+uploads/
+
+# Claude
+.claude/
+
+# macOS
+.DS_Store

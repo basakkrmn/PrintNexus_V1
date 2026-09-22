@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PrintNexus · Yazıcı Filosu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ══════════ SIDEBAR ══════════ -->
+  <aside class="sidebar">
+    <!-- Açılır/Kapanır Buton Eklendi -->
+    <button class="sidebar-toggle-btn" onclick="toggleSidebar()">
+      <i data-lucide="chevron-left" id="sidebarChevron"></i>
+    </button>
+    <div class="brand">
+      <div class="brand-mark" style="background: transparent; box-shadow: none;">
+        <!-- Logonun Yolu -->
+        <img src="./images/sasaend4.0wp.jpg" alt="SASA Logo" style="width: 100px; height: auto; object-fit: contain;">
+      </div>
+      <div class="brand-text">
+        <b>SASA PrintNexus</b>
+        <span>Endüstri 4.0</span>
+      </div>
+    </div>
+
+    <div class="side-label">Menü</div>
+    <nav class="nav">
+      <button class="nav-item active" data-tab="overview" onclick="switchTab('overview')">
+        <i data-lucide="layout-dashboard"></i><span>Genel Bakış</span>
+      </button>
+      <button class="nav-item" data-tab="fleet" onclick="switchTab('fleet')">
+        <i data-lucide="boxes"></i><span>Yazıcı Filosu</span>
+      </button>
+      <button class="nav-item" data-tab="analytics" data-require-permission="canViewReports" onclick="window.location.href='/analysis.html'">
+        <i data-lucide="bar-chart-3"></i><span>Analitik</span>
+      </button>
+      <button class="nav-item" data-tab="settings" onclick="switchTab('settings')" data-require-permission="canViewSettings">
+        <i data-lucide="settings"></i><span>Ayarlar</span>
+      </button>
+      <button class="nav-item" data-tab="production" data-require-permission="canViewReports" onclick="window.location.href='/uretim-kayitlari.html'">
+        <i data-lucide="clipboard-list"></i><span>Üretim Kayıtları</span>
+      </button>
+      <button class="nav-item" data-tab="about" onclick="window.location.href='/about.html'" style="margin-top: 8px; border-top: 1px solid var(--line); padding-top: 8px;">
+        <i data-lucide="info"></i><span>Hakkında</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="avatar" id="userAvatar">A</div>
+        <div class="u-meta">
+          <b id="userName">-</b>
+          <span id="userRole">-</span>
+        </div>
+      </div>
+      <button class="icon-btn" onclick="toggleTheme()">
+        <i data-lucide="moon" id="themeIcon"></i><span id="themeText">Koyu Mod</span>
+      </button>
+      <button class="icon-btn danger" onclick="logout()">
+        <i data-lucide="log-out"></i><span>Çıkış Yap</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ══════════ MAIN ══════════ -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" onclick="toggleNav()"><i data-lucide="menu"></i></button>
+        <div class="page-title">
+          <h1 id="pageTitle">Genel Bakış</h1>
+          <p id="pageSub">Filonun anlık durumu</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="status-pill" id="ws-badge"><span class="dot"></span>Bağlantı yok</span>
+        <button class="ghost-btn" onclick="refreshData()" title="Yenile"><i data-lucide="refresh-cw"></i></button>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ════ VIEW: GENEL BAKIŞ ════ -->
+      <section class="view active" id="view-overview">
+        <div class="stat-grid">
+          <div class="stat">
+            <div class="stat-top">
+              <div class="stat-ico ok"><i data-lucide="activity"></i></div>
+              <span class="stat-trend">Canlı</span>
+            </div>
+            <div class="stat-val mono" id="activeCount">0</div>
+            <div class="stat-label">Aktif Üretim</div>
+          </div>
+          <div class="stat">
+            <div class="stat-top">
+              <div class="stat-ico warn"><i data-lucide="check-check"></i></div>
+            </div>
+            <div class="stat-val mono" id="finishedCount">0</div>
+            <div class="stat-label">Biten Baskı</div>
+          </div>
+          <div class="stat">
+            <div class="stat-top">
+              <div class="stat-ico err"><i data-lucide="triangle-alert"></i></div>
+            </div>
+            <div class="stat-val mono" id="errorCount">0</div>
+            <div class="stat-label">Hata / Arıza</div>
+          </div>
+          <div class="stat">
+            <div class="stat-top">
+              <div class="stat-ico brand"><i data-lucide="gauge"></i></div>
+            </div>
+            <div class="stat-val mono" id="loadPercent">0%</div>
+            <div class="stat-label">Doluluk</div>
+          </div>
+        </div>
+
+        <!-- SIGNATURE: filo ızgarası -->
+        <div class="panel">
+          <div class="section-head">
+            <h2><i data-lucide="layout-grid"></i> Filo Durumu</h2>
+          </div>
+          <div class="fleet-grid" id="fleetGrid"></div>
+          <div class="legend">
+            <div class="legend-item"><i style="background:var(--ok)"></i> Çalışıyor</div>
+            <div class="legend-item"><i style="background:var(--idle)"></i> Boşta</div>
+            <div class="legend-item"><i style="background:var(--warn)"></i> Tamamlandı</div>
+            <div class="legend-item"><i style="background:var(--err)"></i> Hata</div>
+            <div class="legend-item"><i style="background:var(--off)"></i> Çevrim dışı</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ════ VIEW: YAZICI FİLOSU ════ -->
+      <section class="view" id="view-fleet">
+        <div class="section-head">
+          <h2><i data-lucide="boxes"></i> Tüm Yazıcılar</h2>
+          <button class="btn btn-primary" data-require-permission="canAddPrinter" onclick="openManager()">
+            <i data-lucide="plus"></i> Yazıcı Ekle
+          </button>
+        </div>
+        <div id="fleetContainer"></div>
+      </section>
+
+      <!-- ════ VIEW: ANALİTİK ════ -->
+      <section class="view" id="view-analytics">
+        <div class="section-head">
+          <h2><i data-lucide="bar-chart-3"></i> Analitik & Raporlar</h2>
+          <button class="btn btn-primary" data-require-permission="canViewReports" onclick="downloadReport()">
+            <i data-lucide="download"></i> 📊 Rapor İndir
+          </button>
+        </div>
+        <div class="chart-grid">
+          <div class="chart-card wide">
+            <h3><i data-lucide="thermometer"></i> Sıcaklık Geçmişi</h3>
+            <div class="chart-wrap"><canvas id="temperatureChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <h3><i data-lucide="pie-chart"></i> Baskı Sonuçları</h3>
+            <div class="chart-wrap"><canvas id="successRateChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <h3><i data-lucide="gauge"></i> Yazıcı Verimliliği</h3>
+            <div class="chart-wrap"><canvas id="efficiencyChart"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ════ VIEW: AYARLAR ════ -->
+      <section class="view" id="view-settings">
+        <div class="settings-grid">
+
+          <!-- ── Kullanıcı Yönetimi (yalnızca Yönetici) ── -->
+          <div class="panel" style="margin:0" data-require-admin>
+            <div class="section-head">
+              <h2><i data-lucide="users"></i> Kullanıcı Yönetimi</h2>
+              <button class="btn btn-primary" onclick="openUserModal()">
+                <i data-lucide="user-plus"></i> Yeni Kullanıcı
+              </button>
+            </div>
+            <div id="userList"></div>
+          </div>
+
+          <!-- ── Yazıcı Yönetimi ── -->
+          <div class="panel" style="margin:0">
+            <div class="section-head">
+              <h2><i data-lucide="printer"></i> Yazıcı Yönetimi</h2>
+              <button class="btn btn-primary" data-require-permission="canAddPrinter" onclick="openManager()">
+                <i data-lucide="plus"></i> Ekle
+              </button>
+            </div>
+            <div id="settingsPrinterList"></div>
+          </div>
+
+          <!-- ── Hesap Ayarları (tüm roller) ── -->
+          <div class="panel" style="margin:0">
+            <div class="section-head">
+              <h2><i data-lucide="user-cog"></i> Hesabım</h2>
+            </div>
+
+            <div class="user-row" style="padding:12px 0 16px">
+              <div class="avatar" id="accAvatar">A</div>
+              <div class="u-meta">
+                <b id="accUsername">-</b>
+                <span id="accRoleDesc">-</span>
+              </div>
+              <span class="role-tag" id="accRoleTag">-</span>
+            </div>
+
+            <div class="form-group">
+              <label>Mevcut Şifre</label>
+              <input id="pwOld" type="password" placeholder="••••••••" autocomplete="current-password">
+            </div>
+            <div class="form-group">
+              <label>Yeni Şifre</label>
+              <input id="pwNew" type="password" placeholder="••••••••" autocomplete="new-password">
+            </div>
+            <div class="form-group">
+              <label>Yeni Şifre (Tekrar)</label>
+              <input id="pwNew2" type="password" placeholder="••••••••" autocomplete="new-password">
+            </div>
+            <button class="btn btn-primary btn-block" onclick="submitChangePassword()">
+              <i data-lucide="key-round"></i> Şifreyi Güncelle
+            </button>
+
+            <div style="height:1px;background:var(--line);margin:20px 0"></div>
+
+            <div style="margin-bottom:10px">
+              <b style="font-size:.85rem">Güvenli Kelime</b>
+              <p style="font-size:.78rem;color:var(--ink-muted);margin-top:2px">
+                Şifrenizi unutursanız kimliğinizi doğrulamak için kullanılır. Sadece siz bilirsiniz.
+              </p>
+              <p id="secureWordStatus" style="font-size:.78rem;font-weight:700;margin-top:6px">-</p>
+            </div>
+
+            <div class="form-group">
+              <label>Mevcut Şifre</label>
+              <input id="swCurrentPw" type="password" placeholder="••••••••" autocomplete="current-password">
+            </div>
+            <div class="form-group">
+              <label>Güvenli Kelime</label>
+              <input id="swWord" type="text" placeholder="Örn: sizin belirlediğiniz kelime" autocomplete="off">
+            </div>
+            <button class="btn btn-secondary btn-block" onclick="submitSetSecureWord()">
+              <i data-lucide="shield-check"></i> Güvenli Kelimeyi Kaydet
+            </button>
+          </div>
+
+          <!-- ── Bekleyen Şifre Sıfırlama İstekleri (yalnızca Yönetici) ── -->
+          <div class="panel" style="margin:0" data-require-admin>
+            <div class="section-head">
+              <h2><i data-lucide="key-round"></i> Şifre Sıfırlama İstekleri</h2>
+              <button class="btn btn-secondary" onclick="loadResetRequests()">
+                <i data-lucide="refresh-cw"></i> Yenile
+              </button>
+            </div>
+            <div id="resetRequestList"></div>
+          </div>
+
+          <!-- ── Yetki Matrisi (bilgilendirme) ── -->
+          <div class="panel" style="margin:0">
+            <div class="section-head">
+              <h2><i data-lucide="shield-check"></i> Rol Yetkileri</h2>
+            </div>
+            <div id="permMatrix"></div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- FOOTER EKLENDİ -->
+      <footer class="app-footer">
+        SASA Endüstri 4.0 - PrintNexus - 2026
+      </footer>
+
+    </div>
+  </div>
+
+  <div class="scrim" onclick="toggleNav()"></div>
+
+  <!-- ══════════ MODAL: PRINTER DETAIL ══════════ -->
+  <div id="printerDetailModal" class="modal-overlay">
+    <div class="modal-content modal-wide">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div id="detailModelThumbnail" style="width:48px;height:48px"></div>
+          <div>
+            <h2 id="detailPrinterId">-</h2>
+            <p id="detailPrinterType" style="font-size:.85rem;color:var(--ink-muted)">-</p>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closePrinterDetail()"><i data-lucide="x"></i></button>
+      </div>
+
+      <div class="detail-grid">
+        <!-- SOL: Model & İlerleme -->
+        <div class="detail-section">
+          <div id="detailLargeModel" style="width:100%;height:240px;background:var(--bg-alt);border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;overflow:hidden;position:relative">
+            <!-- Video tag: Bambu HLS için -->
+            <video id="detailCameraStream" width="100%" height="100%" style="object-fit:cover;display:none;position:absolute" muted autoplay></video>
+            
+            <!-- IMG tag: Ultimaker MJPEG için -->
+            <img id="detailCameraStreamMJPEG" style="object-fit:cover;display:none;position:absolute;width:100%;height:100%;"/>
+            
+            <!-- IMG tag: Zaxe MJPEG (port 5002 H.264 -> sunucuda MJPEG) için -->
+            <img id="detailCameraStreamZaxe" style="object-fit:cover;display:none;position:absolute;width:100%;height:100%;"/>
+            
+            <!-- Fallback placeholder -->
+            <div id="detailCameraPlaceholder" style="text-align:center;color:var(--ink-muted);width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column">
+              <i data-lucide="camera-off" style="width:48px;height:48px;margin-bottom:8px"></i>
+              <p>Kamera kullanılamıyor</p>
+            </div>
+          </div>
+          
+          <div class="detail-progress">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+              <span id="detailProgressLabel">-</span>
+              <span id="detailProgressPercent" class="mono">0%</span>
+            </div>
+            <div class="progress-bar">
+              <div id="detailProgressFill" class="fill" style="width:0%"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:.8rem;color:var(--ink-muted);margin-top:8px">
+              <span id="detailLayerInfo"></span>
+              <span id="detailTimeRemaining"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SAĞ: Telemetri & Kontroller -->
+        <div class="detail-section">
+          <!-- SEKME BAŞLIKLARI (YENİ) -->
+          <div class="detail-tabs" style="display:flex;gap:6px;margin-bottom:14px;border-bottom:2px solid var(--line)">
+            <button class="detail-tab-btn active" onclick="switchDetailTab('telemetry')" style="flex:1;padding:10px 12px;border:none;background:transparent;cursor:pointer;color:var(--primary);border-bottom:3px solid var(--primary);margin-bottom:-2px;font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px;justify-content:center">
+              <i data-lucide="gauge" style="width:15px;height:15px"></i> Gerçek Zamanlı
+            </button>
+            <button class="detail-tab-btn" onclick="switchDetailTab('analytics')" style="flex:1;padding:10px 12px;border:none;background:transparent;cursor:pointer;color:var(--ink-muted);border-bottom:3px solid transparent;margin-bottom:-2px;font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px;justify-content:center">
+              <i data-lucide="line-chart" style="width:15px;height:15px"></i> Analitik
+            </button>
+          </div>
+
+          <!-- TAB 1: TELEMETRİ (MEVCUT) -->
+          <div id="detailTab-telemetry" class="detail-tab-content active">
+            <div class="detail-telemetry">
+              <div class="telemetry-row">
+                <span class="label">Durum</span>
+                <span id="detailStatus" class="value mono">-</span>
+              </div>
+              <div class="telemetry-row">
+                <span class="label"><i data-lucide="thermometer"></i> Nozul</span>
+                <span id="detailNozzle" class="value mono">-°C</span>
+              </div>
+              <div class="telemetry-row">
+                <span class="label"><i data-lucide="grip"></i> Tabla</span>
+                <span id="detailBed" class="value mono">-°C</span>
+              </div>
+              <div class="telemetry-row">
+                <span class="label"><i data-lucide="box"></i> Chamber</span>
+                <span id="detailChamber" class="value mono">-°C</span>
+              </div>
+              <div class="telemetry-row">
+                <span class="label">Hata</span>
+                <span id="detailError" class="value" style="color:var(--err)">-</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: ANALİTİK (YENİ) -->
+          <div id="detailTab-analytics" class="detail-tab-content" style="display:none">
+            <div id="analyticsContent" style="overflow-y:auto;max-height:420px">
+              <div style="text-align:center;padding:24px;color:var(--ink-muted)">Analitik verisi yükleniyor…</div>
+            </div>
+          </div>
+
+          <div class="detail-controls">
+            <button class="btn btn-primary" id="detailBtnPause" data-require-permission="canControlPrinter" onclick="pausePrinterDetail()" style="display:none">
+              <i data-lucide="pause"></i> Duraklat
+            </button>
+            <button class="btn btn-secondary" id="detailBtnResume" data-require-permission="canControlPrinter" onclick="resumePrinterDetail()" style="display:none">
+              <i data-lucide="play"></i> Başlat
+            </button>
+            <button class="btn btn-danger" id="detailBtnStop" data-require-permission="canControlPrinter" onclick="stopPrinterDetail()">
+              <i data-lucide="square"></i> Durdur
+            </button>
+            <button class="btn btn-ghost" onclick="closePrinterDetail()">
+              <i data-lucide="x"></i> Kapat
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- ══════════ MODAL: YAZICI EKLE/DÜZENLE ══════════ -->
+<div id="managerModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2><i data-lucide="printer"></i> Yazıcı Ekle</h2>
+      <button class="modal-close" onclick="closeManager()"><i data-lucide="x"></i></button>
+    </div>
+
+    <div class="form-group">
+      <label>Yazıcı Adı</label>
+      <input id="printerId" placeholder="Örn: 1 Nolu Ultimaker">
+    </div>
+    <div class="form-group">
+      <label>IP Adresi</label>
+      <input id="printerIP" placeholder="10.99.199.XX">
+    </div>
+    <div class="form-group">
+      <label>Yazıcı Tipi</label>
+      <select id="printerType" onchange="toggleFormFields()">
+        <option value="ultimaker">Ultimaker (HTTP)</option>
+        <option value="bambu">Bambu Lab (MQTT)</option>
+        <option value="raise3d">Raise3D Pro3 (HTTP)</option>
+        <option value="guider">Guider 2S (TCP)</option>
+        <option value="zaxe">ZAXE X4 (HTTP)</option>
+      </select>
+    </div>
+
+    <div id="ultimakerFields" data-form-field class="hidden">
+      <div class="form-group"><label>Kullanıcı Adı</label><input id="printerUser" placeholder="admin"></div>
+      <div class="form-group"><label>Şifre</label><input id="printerPass" type="password" placeholder="••••••"></div>
+    </div>
+
+    <div id="bambuFields" data-form-field class="hidden">
+      <div class="form-group"><label>Access Code</label><input id="printerCode" placeholder="Ekran → Ayarlar → LAN Only"></div>
+      <div class="form-group"><label>Seri No</label><input id="printerSerial" placeholder="00M281232341000"></div>
+    </div>
+
+    <div id="raise3dFields" data-form-field class="hidden">
+      <div class="form-group"><label>Kullanıcı Adı</label><input id="printerUser" placeholder="admin"></div>
+      <div class="form-group"><label>Şifre</label><input id="printerPass" type="password" placeholder="••••••"></div>
+    </div>
+
+    <div id="guiderFields" data-form-field class="hidden">
+      <p class="form-hint"><i data-lucide="info"></i> Guider yalnızca IP ile bağlanır (TCP 8899).</p>
+    </div>
+
+    <div id="zaxeFields" data-form-field class="hidden">
+      <div class="form-group"><label>Kullanıcı Adı</label><input id="printerUser" placeholder="admin"></div>
+      <div class="form-group"><label>Şifre</label><input id="printerPass" type="password" placeholder="••••••"></div>
+    </div>
+
+    <button onclick="addPrinter()" class="btn btn-primary btn-block" style="margin-top:8px">
+      <i data-lucide="save"></i> Kaydet
+    </button>
+
+    <div style="margin-top:22px">
+      <div class="section-head"><h2><i data-lucide="list"></i> Kayıtlı Yazıcılar</h2></div>
+      <div id="printerList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: KULLANICI EKLE / DÜZENLE ══════════ -->
+<div id="userModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2><i data-lucide="user-plus"></i> <span id="userModalTitle">Yeni Kullanıcı</span></h2>
+      <button class="modal-close" onclick="closeUserModal()"><i data-lucide="x"></i></button>
+    </div>
+
+    <input type="hidden" id="userEditId" value="">
+
+    <div class="form-group">
+      <label>Kullanıcı Adı</label>
+      <input id="userUsername" placeholder="Örn: mehmet" autocomplete="off">
+    </div>
+
+    <div class="form-group">
+      <label id="userPassLabel">Şifre</label>
+      <input id="userPassword" type="password" placeholder="••••••••" autocomplete="new-password">
+    </div>
+
+    <div class="form-group">
+      <label>Rol</label>
+      <select id="userRoleSelect">
+        <option value="admin">Yönetici — tam erişim + kullanıcı yönetimi</option>
+        <option value="operator">Operatör — yazıcı kontrolü + raporlar</option>
+        <option value="viewer" selected>İzleyici — sadece görüntüleme</option>
+      </select>
+    </div>
+
+    <p class="form-hint" id="userModalHint" style="margin-bottom:14px">
+      <i data-lucide="info"></i> İzleyici rolünde IP adresleri maskelenir.
+    </p>
+
+    <button class="btn btn-primary btn-block" onclick="submitUserForm()">
+      <i data-lucide="save"></i> Kaydet
+    </button>
+  </div>
+</div>
+
+<script>
+  function toggleSidebar() {
+    const app = document.getElementById('app');
+    app.classList.toggle('collapsed');
+    
+    const chevron = document.getElementById('sidebarChevron');
+    if (app.classList.contains('collapsed')) {
+      chevron.setAttribute('data-lucide', 'chevron-right');
+    } else {
+      chevron.setAttribute('data-lucide', 'chevron-left');
+    }
+    
+    if (window.lucide) {
+      lucide.createIcons();
+    }
+  }
+</script>
+
+<script src="./app.js"></script>
+</body>
+</html>
